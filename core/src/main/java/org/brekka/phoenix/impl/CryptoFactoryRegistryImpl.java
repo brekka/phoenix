@@ -10,7 +10,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.brekka.phoenix.CryptoFactory;
 import org.brekka.phoenix.CryptoFactoryRegistry;
 import org.brekka.xml.phoenix.v1.model.CryptoProfileDocument.CryptoProfile;
-import org.brekka.xml.phoenix.v1.model.CryptoProfileRegistryDocument;
 import org.brekka.xml.phoenix.v1.model.CryptoProfileRegistryDocument.CryptoProfileRegistry;
 
 public class CryptoFactoryRegistryImpl implements CryptoFactoryRegistry {
@@ -37,12 +36,11 @@ public class CryptoFactoryRegistryImpl implements CryptoFactoryRegistry {
         return profileMap.get(profileId);
     }
     
-    public static CryptoFactoryRegistry createRegistry(CryptoProfileRegistryDocument doc) {
+    public static CryptoFactoryRegistry createRegistry(CryptoProfileRegistry cryptoProfileRegistry) {
         Security.addProvider(new BouncyCastleProvider());
         
         CryptoFactory defaultFactory = null;
         
-        CryptoProfileRegistry cryptoProfileRegistry = doc.getCryptoProfileRegistry();
         List<CryptoProfile> cryptoProfileList = cryptoProfileRegistry.getCryptoProfileList();
         List<CryptoFactory> cryptoFactories = new ArrayList<>(cryptoProfileList.size());
         for (CryptoProfile cryptoProfile : cryptoProfileList) {
