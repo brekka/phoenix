@@ -21,7 +21,7 @@ public class CryptoFactoryImpl implements CryptoFactory {
     
     private final PasswordBased passwordBased;
     
-    private final Symmetric synchronous;
+    private final Symmetric symmetric;
     
     public CryptoFactoryImpl(CryptoProfile cryptoProfile) {
         this(
@@ -46,7 +46,7 @@ public class CryptoFactoryImpl implements CryptoFactory {
         }
         this.asynchronous = asynchronous;
         this.passwordBased = passwordBased;
-        this.synchronous = synchronous;
+        this.symmetric = synchronous;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class CryptoFactoryImpl implements CryptoFactory {
 
     @Override
     public Symmetric getSymmetric() {
-        return synchronous;
+        return symmetric;
     }
 
 }
