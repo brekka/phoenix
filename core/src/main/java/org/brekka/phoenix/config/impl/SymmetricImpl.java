@@ -1,14 +1,14 @@
-package org.brekka.phoenix.impl;
+package org.brekka.phoenix.config.impl;
 
 import java.security.GeneralSecurityException;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 
-import org.brekka.phoenix.CryptoFactory;
 import org.brekka.phoenix.PhoenixErrorCode;
 import org.brekka.phoenix.PhoenixException;
-import org.brekka.xml.phoenix.v1.model.SymmetricProfileType;
+import org.brekka.phoenix.config.CryptoFactory;
+import org.brekka.xml.phoenix.v2.model.SymmetricProfileType;
 
 class SymmetricImpl implements CryptoFactory.Symmetric {
 

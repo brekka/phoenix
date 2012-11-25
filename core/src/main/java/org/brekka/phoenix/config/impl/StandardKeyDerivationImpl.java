@@ -1,16 +1,15 @@
-package org.brekka.phoenix.impl;
+package org.brekka.phoenix.config.impl;
 
 import java.security.GeneralSecurityException;
 
-import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 
-import org.brekka.phoenix.CryptoFactory;
 import org.brekka.phoenix.PhoenixErrorCode;
 import org.brekka.phoenix.PhoenixException;
-import org.brekka.xml.phoenix.v1.model.PasswordBasedProfileType;
+import org.brekka.phoenix.config.CryptoFactory;
+import org.brekka.xml.phoenix.v2.model.KeyDerivationProfileType;
 
-class PasswordBasedImpl implements CryptoFactory.PasswordBased {
+class StandardKeyDerivationImpl implements CryptoFactory.StandardKeyDerivation {
     
     private final SecretKeyFactory secretKeyFactory;
     
@@ -18,19 +17,15 @@ class PasswordBasedImpl implements CryptoFactory.PasswordBased {
     
     private final int iterationFactor;
     
-    private final String algorithm;
-    
-    
-    public PasswordBasedImpl(PasswordBasedProfileType profile) {
+    public StandardKeyDerivationImpl(KeyDerivationProfileType.Standard profile) {
         this(
-            profile.getCipher().getAlgorithm().getStringValue(),
             profile.getSecretKeyFactory().getAlgorithm().getStringValue(),
             profile.getSaltLength(),
-            profile.getIterationFactor()
+            profile.getIterations()
         );
     }
     
-    public PasswordBasedImpl(String cipherAlgorithm, String secretKeyAlgorithm, int saltLength, int iterationFactor) {
+    public StandardKeyDerivationImpl(String secretKeyAlgorithm, int saltLength, int iterationFactor) {
         try {
             this.secretKeyFactory = SecretKeyFactory.getInstance(secretKeyAlgorithm);
         } catch (GeneralSecurityException e) {
@@ -39,7 +34,6 @@ class PasswordBasedImpl implements CryptoFactory.PasswordBased {
         }
         this.saltLength = saltLength;
         this.iterationFactor = iterationFactor;
-        this.algorithm = cipherAlgorithm;
     }
 
     @Override
@@ -53,18 +47,7 @@ class PasswordBasedImpl implements CryptoFactory.PasswordBased {
     }
 
     @Override
-    public int getIterationFactor() {
+    public int getIterations() {
         return iterationFactor;
     }
-
-    @Override
-    public Cipher getInstance() {
-        try {
-            return Cipher.getInstance(algorithm);
-        } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP300, e, 
-                    "Failed to prepare key factory/cipher with algorithm '%s'", algorithm);
-        }
-    }
-
 }

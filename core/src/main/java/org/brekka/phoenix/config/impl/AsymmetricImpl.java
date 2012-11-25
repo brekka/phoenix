@@ -1,4 +1,4 @@
-package org.brekka.phoenix.impl;
+package org.brekka.phoenix.config.impl;
 
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
@@ -9,8 +9,8 @@ import javax.crypto.Cipher;
 
 import org.brekka.phoenix.PhoenixErrorCode;
 import org.brekka.phoenix.PhoenixException;
-import org.brekka.phoenix.CryptoFactory;
-import org.brekka.xml.phoenix.v1.model.AsymmetricProfileType;
+import org.brekka.phoenix.config.CryptoFactory;
+import org.brekka.xml.phoenix.v2.model.AsymmetricProfileType;
 
 class AsymmetricImpl implements CryptoFactory.Asymmetric {
 

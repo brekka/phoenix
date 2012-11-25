@@ -1,4 +1,4 @@
-package org.brekka.phoenix;
+package org.brekka.phoenix.config;
 
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -21,10 +21,9 @@ public interface CryptoFactory {
     
     Asymmetric getAsymmetric();
     
-    PasswordBased getPasswordBased();
+    StandardKeyDerivation getStandardKeyDerivation();
     
-
-    
+    SCryptKeyDerivation getSCryptKeyDerivation();
     
     interface Asymmetric {
         KeyFactory getKeyFactory();
@@ -34,14 +33,20 @@ public interface CryptoFactory {
         Cipher getInstance();
     }
     
-    interface PasswordBased {
+    interface StandardKeyDerivation {
         SecretKeyFactory getSecretKeyFactory();
         
         int getSaltLength();
         
+        int getIterations();
+    }
+    
+    interface SCryptKeyDerivation {
+        int getSaltLength();
         int getIterationFactor();
-        
-        Cipher getInstance();
+        int getMemoryFactor();
+        int getParallelisation();
+        int getKeyLength();
     }
     
     interface Symmetric {

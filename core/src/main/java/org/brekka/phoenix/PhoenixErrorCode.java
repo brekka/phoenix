@@ -16,6 +16,7 @@ public enum PhoenixErrorCode implements ErrorCode {
     CP104,
     CP105,
     CP106,
+    CP107,
     
     
     CP200,

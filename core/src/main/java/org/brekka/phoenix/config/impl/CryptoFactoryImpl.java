@@ -1,4 +1,4 @@
-package org.brekka.phoenix.impl;
+package org.brekka.phoenix.config.impl;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -6,8 +6,8 @@ import java.security.SecureRandom;
 
 import org.brekka.phoenix.PhoenixErrorCode;
 import org.brekka.phoenix.PhoenixException;
-import org.brekka.phoenix.CryptoFactory;
-import org.brekka.xml.phoenix.v1.model.CryptoProfileDocument.CryptoProfile;
+import org.brekka.phoenix.config.CryptoFactory;
+import org.brekka.xml.phoenix.v2.model.CryptoProfileDocument.CryptoProfile;
 
 public class CryptoFactoryImpl implements CryptoFactory {
 
@@ -19,7 +19,9 @@ public class CryptoFactoryImpl implements CryptoFactory {
     
     private final Asymmetric asynchronous;
     
-    private final PasswordBased passwordBased;
+    private final StandardKeyDerivation standardKeyDerivation;
+    
+    private final SCryptKeyDerivation scryptKeyDerivation;
     
     private final Symmetric symmetric;
     
@@ -29,13 +31,15 @@ public class CryptoFactoryImpl implements CryptoFactory {
             cryptoProfile.getMessageDigest().getStringValue(),
             cryptoProfile.getRandom().getStringValue(),
             new AsymmetricImpl(cryptoProfile.getAsymmetric()), 
-            new PasswordBasedImpl(cryptoProfile.getPasswordBased()), 
+            new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()), 
+            new SCriptKeyDerivationImpl(cryptoProfile.getKeyDerivation().getSCrypt()),
             new SymmetricImpl(cryptoProfile.getSymmetric())
         );
     }
     
     public CryptoFactoryImpl(int id, String messageDigestAlgorithm, String secureRandomAlgorithm, 
-            Asymmetric asynchronous, PasswordBased passwordBased, Symmetric synchronous) {
+            Asymmetric asynchronous, StandardKeyDerivation standardKeyDerivation, SCryptKeyDerivation scryptKeyDerivation,
+            Symmetric synchronous) {
         this.id = id;
         this.messageDigestAlgorithm = messageDigestAlgorithm;
         try {
@@ -45,7 +49,8 @@ public class CryptoFactoryImpl implements CryptoFactory {
                     "Secure random algorithm '%s' not found", secureRandomAlgorithm);
         }
         this.asynchronous = asynchronous;
-        this.passwordBased = passwordBased;
+        this.standardKeyDerivation = standardKeyDerivation;
+        this.scryptKeyDerivation = scryptKeyDerivation;
         this.symmetric = synchronous;
     }
 
@@ -74,9 +79,20 @@ public class CryptoFactoryImpl implements CryptoFactory {
         return asynchronous;
     }
 
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.CryptoFactory#getSCryptKeyDerivation()
+     */
     @Override
-    public PasswordBased getPasswordBased() {
-        return passwordBased;
+    public SCryptKeyDerivation getSCryptKeyDerivation() {
+        return scryptKeyDerivation;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.CryptoFactory#getStandardKeyDerivation()
+     */
+    @Override
+    public StandardKeyDerivation getStandardKeyDerivation() {
+        return standardKeyDerivation;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.brekka.phoenix.impl;
+package org.brekka.phoenix.config.impl;
 
 import java.security.Security;
 import java.util.ArrayList;
@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.brekka.phoenix.CryptoFactory;
-import org.brekka.phoenix.CryptoFactoryRegistry;
-import org.brekka.xml.phoenix.v1.model.CryptoProfileDocument.CryptoProfile;
-import org.brekka.xml.phoenix.v1.model.CryptoProfileRegistryDocument.CryptoProfileRegistry;
+import org.brekka.phoenix.config.CryptoFactory;
+import org.brekka.phoenix.config.CryptoFactoryRegistry;
+import org.brekka.xml.phoenix.v2.model.CryptoProfileDocument.CryptoProfile;
+import org.brekka.xml.phoenix.v2.model.CryptoProfileRegistryDocument.CryptoProfileRegistry;
 
 public class CryptoFactoryRegistryImpl implements CryptoFactoryRegistry {
 

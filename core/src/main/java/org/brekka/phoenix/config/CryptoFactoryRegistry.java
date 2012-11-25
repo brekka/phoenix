@@ -1,4 +1,4 @@
-package org.brekka.phoenix;
+package org.brekka.phoenix.config;
 
 public interface CryptoFactoryRegistry {
 
