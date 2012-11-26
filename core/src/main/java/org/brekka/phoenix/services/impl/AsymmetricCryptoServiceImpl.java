@@ -51,7 +51,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
     @Override
     public KeyPair createKeyPair(CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        CryptoFactory.Asymmetric asymmetric = profile.getAsymmetric();
+        CryptoFactory.Asymmetric asymmetric = profile.getFactory().getAsymmetric();
         java.security.KeyPair keyPair = asymmetric.generateKeyPair();
         return new KeyPairImpl(
                 new PublicKeyImpl(profile, keyPair.getPublic()), 
@@ -64,7 +64,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
     @Override
     public PublicKey toPublicKey(byte[] encodedPublicKeyBytes, CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        CryptoFactory.Asymmetric asymmetric = profile.getAsymmetric();
+        CryptoFactory.Asymmetric asymmetric = profile.getFactory().getAsymmetric();
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedPublicKeyBytes);
         java.security.PublicKey publicKey;
         try {
@@ -83,7 +83,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
     @Override
     public PrivateKey toPrivateKey(byte[] encodedPrivateKeyBytes, CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        CryptoFactory.Asymmetric asymmetric = profile.getAsymmetric();
+        CryptoFactory.Asymmetric asymmetric = profile.getFactory().getAsymmetric();
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKeyBytes);
         java.security.PrivateKey privateKey;
         try {
@@ -160,7 +160,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
     }
     
     protected Cipher getAsymmetricCipher(int mode, AbstractAsymmetricKey<Key> key) {
-        CryptoFactory.Asymmetric asymmetric = key.getCryptoProfileImpl().getAsymmetric();
+        CryptoFactory.Asymmetric asymmetric = key.getCryptoProfileImpl().getFactory().getAsymmetric();
         Cipher cipher = asymmetric.getInstance();
         try {
             Key realKey = key.getRealKey();

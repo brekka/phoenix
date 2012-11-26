@@ -40,7 +40,7 @@ public class DigestCryptoServiceImpl extends CryptoServiceSupport implements Dig
     @Override
     public DigestResult digest(byte[] data, CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        MessageDigest digestInstance = profile.getDigestInstance();
+        MessageDigest digestInstance = profile.getFactory().getDigestInstance();
         byte[] digest = digestInstance.digest(data);
         return new DigestResultImpl(profile, digest);
     }
@@ -52,7 +52,7 @@ public class DigestCryptoServiceImpl extends CryptoServiceSupport implements Dig
     public int getDigestLength(CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         // TODO Avoid creating instance to find length (every time)
-        MessageDigest digestInstance = profile.getDigestInstance();
+        MessageDigest digestInstance = profile.getFactory().getDigestInstance();
         return digestInstance.getDigestLength();
     }
 
@@ -62,7 +62,7 @@ public class DigestCryptoServiceImpl extends CryptoServiceSupport implements Dig
     @Override
     public StreamCryptor<InputStream, DigestResult> inputDigester(CryptoProfile cryptoProfile) {
         final CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        final MessageDigest digestInstance = profile.getDigestInstance();
+        final MessageDigest digestInstance = profile.getFactory().getDigestInstance();
         return new StreamCryptor<InputStream, DigestResult>() {
             
             @Override
@@ -83,7 +83,7 @@ public class DigestCryptoServiceImpl extends CryptoServiceSupport implements Dig
     @Override
     public StreamCryptor<OutputStream, DigestResult> outputDigester(CryptoProfile cryptoProfile) {
         final CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        final MessageDigest digestInstance = profile.getDigestInstance();
+        final MessageDigest digestInstance = profile.getFactory().getDigestInstance();
         return new StreamCryptor<OutputStream, DigestResult>() {
             
             @Override

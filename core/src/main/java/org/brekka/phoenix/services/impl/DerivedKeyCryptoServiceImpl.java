@@ -47,11 +47,11 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
     @Override
     public DerivedKey apply(byte[] key, CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
+        StandardKeyDerivation standardKeyDerivation = profile.getFactory().getStandardKeyDerivation();
         DerivedKey result;
         
         if (standardKeyDerivation == null) {
-            SCryptKeyDerivation sCryptKeyDerivation = profile.getSCryptKeyDerivation();
+            SCryptKeyDerivation sCryptKeyDerivation = profile.getFactory().getSCryptKeyDerivation();
             byte[] salt = generateSalt(sCryptKeyDerivation.getSaltLength(), profile);
             result = applySCript(key, salt, null, profile);
         } else {
@@ -67,7 +67,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
     @Override
     public boolean check(byte[] key, DerivedKey derivedKey) {
         CryptoProfileImpl profile = narrowProfile(derivedKey.getCryptoProfile());
-        StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
+        StandardKeyDerivation standardKeyDerivation = profile.getFactory().getStandardKeyDerivation();
         DerivedKey actual;
         if (standardKeyDerivation == null) {
             actual = applySCript(key, derivedKey.getSalt(), derivedKey.getIterations(), profile);
@@ -83,7 +83,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
     @Override
     public DerivedKey apply(byte[] key, byte[] salt, Integer iterations, CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
+        StandardKeyDerivation standardKeyDerivation = profile.getFactory().getStandardKeyDerivation();
         DerivedKey result;
         if (standardKeyDerivation == null) {
             result = applySCript(key, salt, iterations, profile);
@@ -98,7 +98,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
      * @param cryptoProfile
      */
     protected DerivedKey applyStandard(byte[] key, byte[] salt, Integer iterations, CryptoProfileImpl cryptoProfile) {
-        StandardKeyDerivation standardKeyDerivation = cryptoProfile.getStandardKeyDerivation();
+        StandardKeyDerivation standardKeyDerivation = cryptoProfile.getFactory().getStandardKeyDerivation();
         byte[] derived;
         int N = standardKeyDerivation.getIterations();
         if (iterations != null) {
@@ -125,7 +125,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
      * @param cryptoProfile
      */
     protected DerivedKey applySCript(byte[] key, byte[] salt, Integer iterations, CryptoProfileImpl profile) {
-        SCryptKeyDerivation sCryptKeyDerivation = profile.getSCryptKeyDerivation();
+        SCryptKeyDerivation sCryptKeyDerivation = profile.getFactory().getSCryptKeyDerivation();
         int N = sCryptKeyDerivation.getIterationFactor();
         if (iterations != null) {
             N = iterations.intValue();
@@ -145,7 +145,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
     
     protected byte[] generateSalt(int length, CryptoProfileImpl profile) {
         byte[] salt = new byte[length];
-        profile.getSecureRandom().nextBytes(salt);
+        profile.getFactory().getSecureRandom().nextBytes(salt);
         return salt;
     }
 

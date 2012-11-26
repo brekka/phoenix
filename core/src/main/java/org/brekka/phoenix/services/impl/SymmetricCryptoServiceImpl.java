@@ -38,6 +38,7 @@ import org.brekka.phoenix.api.DigestResult;
 import org.brekka.phoenix.api.SecretKey;
 import org.brekka.phoenix.api.StreamCryptor;
 import org.brekka.phoenix.api.SymmetricCryptoSpec;
+import org.brekka.phoenix.api.services.CryptoProfileService;
 import org.brekka.phoenix.api.services.DigestCryptoService;
 import org.brekka.phoenix.api.services.SymmetricCryptoService;
 import org.brekka.phoenix.config.CryptoFactory;
@@ -57,7 +58,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
     @Override
     public SecretKey createSecretKey(CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        CryptoFactory.Symmetric symmetric = profile.getSymmetric();
+        CryptoFactory.Symmetric symmetric = profile.getFactory().getSymmetric();
         KeyGenerator keyGenerator = symmetric.getKeyGenerator();
         javax.crypto.SecretKey generatedKey = keyGenerator.generateKey();
         return new SecretKeyImpl(profile, generatedKey);
@@ -69,7 +70,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
     @Override
     public SecretKey toSecretKey(byte[] encodedKeyBytes, CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        CryptoFactory.Symmetric symmetric = profile.getSymmetric();
+        CryptoFactory.Symmetric symmetric = profile.getFactory().getSymmetric();
         javax.crypto.SecretKey secretKey = new SecretKeySpec(encodedKeyBytes, symmetric.getKeyGenerator().getAlgorithm());
         return new SecretKeyImpl(profile, secretKey);
     }
@@ -176,7 +177,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
     protected byte[] saltToIv(byte[] salt, CryptoProfileImpl profile) {
         DigestResult digestResult = digestCryptoService.digest(salt, profile);
         byte[] digest = digestResult.getDigest();
-        int requiredIvLength = profile.getSymmetric().getIvLength();
+        int requiredIvLength = profile.getFactory().getSymmetric().getIvLength();
         // Reduce the digest down to the IV length
         if (requiredIvLength > digest.length) {
             throw new PhoenixException(PhoenixErrorCode.CP104, 
@@ -187,8 +188,9 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
     }
     
     protected IvParameterSpec generateInitializationVector(CryptoProfileImpl profile) {
-        byte[] ivBytes = new byte[profile.getSymmetric().getIvLength()];
-        profile.getSecureRandom().nextBytes(ivBytes);
+        CryptoFactory factory = profile.getFactory();
+        byte[] ivBytes = new byte[factory.getSymmetric().getIvLength()];
+        factory.getSecureRandom().nextBytes(ivBytes);
         IvParameterSpec iv = new IvParameterSpec(ivBytes);
         return iv;
     }
@@ -209,7 +211,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
     protected Cipher getCipher(int mode, SymmetricCryptoSpecImpl spec) {
         java.security.Key key = spec.getSecretKeyImpl().getRealKey();
         AlgorithmParameterSpec parameter = spec.getIvParameterSpec();
-        CryptoFactory.Symmetric symmetricProfile = spec.getCryptoProfileImpl().getSymmetric();
+        CryptoFactory.Symmetric symmetricProfile = spec.getCryptoProfileImpl().getFactory().getSymmetric();
         Cipher cipher = symmetricProfile.getInstance();
         try {
             cipher.init(mode, key, parameter);
@@ -245,5 +247,12 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
         SecretKeyImpl secretKeyImpl = narrowSecretKey(symmetricSpec.getSecretKey());
         CryptoProfileImpl profile = narrowProfile(symmetricSpec.getCryptoProfile());
         return new SymmetricCryptoSpecImpl(profile, secretKeyImpl, initializationVector);
+    }
+    
+    /**
+     * @param digestCryptoService the digestCryptoService to set
+     */
+    public void setDigestCryptoService(DigestCryptoService digestCryptoService) {
+        this.digestCryptoService = digestCryptoService;
     }
 }

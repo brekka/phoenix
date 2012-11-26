@@ -16,9 +16,15 @@
 
 package org.brekka.phoenix.services.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.services.CryptoProfileService;
-import org.brekka.phoenix.config.CryptoFactoryRegistry;
+import org.brekka.phoenix.config.impl.CryptoFactoryImpl;
+import org.brekka.xml.phoenix.v2.model.CryptoProfileDocument;
+import org.brekka.xml.phoenix.v2.model.CryptoProfileRegistryDocument.CryptoProfileRegistry;
 
 /**
  * TODO Description of CryptoProfileServiceImpl
@@ -27,15 +33,21 @@ import org.brekka.phoenix.config.CryptoFactoryRegistry;
  */
 public class CryptoProfileServiceImpl implements CryptoProfileService {
     
-    private final CryptoFactoryRegistry cryptoFactoryRegistry;
-
+    private final Map<Integer, CryptoProfileImpl> profiles = new HashMap<>();
     
+    private final int defaultProfileNumber;
     
     /**
      * @param cryptoFactoryRegistry
      */
-    public CryptoProfileServiceImpl(CryptoFactoryRegistry cryptoFactoryRegistry) {
-        this.cryptoFactoryRegistry = cryptoFactoryRegistry;
+    public CryptoProfileServiceImpl(CryptoProfileRegistry cryptoProfileRegistry) {
+        List<CryptoProfileDocument.CryptoProfile> cryptoProfileList = cryptoProfileRegistry.getCryptoProfileList();
+        for (CryptoProfileDocument.CryptoProfile cryptoProfile : cryptoProfileList) {
+            CryptoFactoryImpl cryptoFactoryImpl = new CryptoFactoryImpl(cryptoProfile);
+            CryptoProfileImpl profile = new CryptoProfileImpl(cryptoFactoryImpl);
+            this.profiles.put(profile.getNumber(), profile);
+        }
+        this.defaultProfileNumber = cryptoProfileRegistry.getDefaultProfileID();
     }
 
     /* (non-Javadoc)
@@ -43,10 +55,10 @@ public class CryptoProfileServiceImpl implements CryptoProfileService {
      */
     @Override
     public CryptoProfile retrieveProfile(int profileNumber) {
-        if (profileNumber == 0) {
+        if (profileNumber == CryptoProfile.DEFAULT.getNumber()) {
             return retrieveDefault();
         }
-        return new CryptoProfileImpl(cryptoFactoryRegistry.getFactory(profileNumber));
+        return this.profiles.get(profileNumber);
     }
 
     /* (non-Javadoc)
@@ -54,7 +66,7 @@ public class CryptoProfileServiceImpl implements CryptoProfileService {
      */
     @Override
     public CryptoProfile retrieveDefault() {
-        return new CryptoProfileImpl(cryptoFactoryRegistry.getDefault());
+        return profiles.get(defaultProfileNumber);
     }
 
 }

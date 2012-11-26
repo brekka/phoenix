@@ -34,7 +34,7 @@ public class RandomCryptoServiceImpl extends CryptoServiceSupport implements Ran
     @Override
     public SecureRandom getSecureRandom(CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
-        return profile.getSecureRandom();
+        return profile.getFactory().getSecureRandom();
     }
 
     /* (non-Javadoc)
