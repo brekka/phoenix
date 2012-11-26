@@ -16,37 +16,32 @@
 
 package org.brekka.phoenix.services.impl;
 
+import java.security.SecureRandom;
+
 import org.brekka.phoenix.api.CryptoProfile;
-import org.brekka.phoenix.api.CryptoSpec;
+import org.brekka.phoenix.api.services.RandomCryptoService;
 
 /**
- * TODO Description of AbstractCryptoSpec
+ * TODO Description of RandomCryptoServiceImpl
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-class AbstractCryptoSpec implements CryptoSpec {
+public class RandomCryptoServiceImpl extends CryptoServiceSupport implements RandomCryptoService {
 
-    private final CryptoProfileImpl cryptoProfile;
-    
-    /**
-     * @param cryptoProfile
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.api.services.RandomCryptoService#getSecureRandom(org.brekka.phoenix.api.CryptoProfile)
      */
-    public AbstractCryptoSpec(CryptoProfileImpl cryptoProfile) {
-        this.cryptoProfile = cryptoProfile;
+    @Override
+    public SecureRandom getSecureRandom(CryptoProfile cryptoProfile) {
+        CryptoProfileImpl profile = narrowProfile(cryptoProfile);
+        return profile.getSecureRandom();
     }
 
     /* (non-Javadoc)
-     * @see org.brekka.phoenix.api.CryptoSpec#getProfile()
+     * @see org.brekka.phoenix.api.services.RandomCryptoService#getSecureRandom()
      */
     @Override
-    public CryptoProfile getCryptoProfile() {
-        return cryptoProfile;
-    }
-
-    /**
-     * @return the cryptoProfile
-     */
-    public CryptoProfileImpl getCryptoProfileImpl() {
-        return cryptoProfile;
+    public SecureRandom getSecureRandom() {
+        return getSecureRandom(CryptoProfile.DEFAULT);
     }
 }

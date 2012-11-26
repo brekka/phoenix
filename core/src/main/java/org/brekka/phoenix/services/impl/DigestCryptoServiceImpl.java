@@ -17,7 +17,9 @@
 package org.brekka.phoenix.services.impl;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.DigestInputStream;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 
 import org.brekka.phoenix.api.CryptoProfile;
@@ -42,12 +44,23 @@ public class DigestCryptoServiceImpl extends CryptoServiceSupport implements Dig
         byte[] digest = digestInstance.digest(data);
         return new DigestResultImpl(profile, digest);
     }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.api.services.DigestCryptoService#getDigestLength(org.brekka.phoenix.api.CryptoProfile)
+     */
+    @Override
+    public int getDigestLength(CryptoProfile cryptoProfile) {
+        CryptoProfileImpl profile = narrowProfile(cryptoProfile);
+        // TODO Avoid creating instance to find length (every time)
+        MessageDigest digestInstance = profile.getDigestInstance();
+        return digestInstance.getDigestLength();
+    }
 
     /* (non-Javadoc)
      * @see org.brekka.phoenix.api.services.DigestCryptoService#digester(org.brekka.phoenix.api.CryptoProfile)
      */
     @Override
-    public StreamCryptor<InputStream, DigestResult> digester(CryptoProfile cryptoProfile) {
+    public StreamCryptor<InputStream, DigestResult> inputDigester(CryptoProfile cryptoProfile) {
         final CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         final MessageDigest digestInstance = profile.getDigestInstance();
         return new StreamCryptor<InputStream, DigestResult>() {
@@ -55,6 +68,27 @@ public class DigestCryptoServiceImpl extends CryptoServiceSupport implements Dig
             @Override
             public InputStream getStream(InputStream stream) {
                 return new DigestInputStream(stream, digestInstance);
+            }
+            
+            @Override
+            public DigestResult getSpec() {
+                return new DigestResultImpl(profile, digestInstance.digest());
+            }
+        };
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.api.services.DigestCryptoService#outputDigester(org.brekka.phoenix.api.CryptoProfile)
+     */
+    @Override
+    public StreamCryptor<OutputStream, DigestResult> outputDigester(CryptoProfile cryptoProfile) {
+        final CryptoProfileImpl profile = narrowProfile(cryptoProfile);
+        final MessageDigest digestInstance = profile.getDigestInstance();
+        return new StreamCryptor<OutputStream, DigestResult>() {
+            
+            @Override
+            public OutputStream getStream(OutputStream stream) {
+                return new DigestOutputStream(stream, digestInstance);
             }
             
             @Override

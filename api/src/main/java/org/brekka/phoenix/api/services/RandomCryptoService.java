@@ -16,20 +16,18 @@
 
 package org.brekka.phoenix.api.services;
 
+import java.security.SecureRandom;
+
 import org.brekka.phoenix.api.CryptoProfile;
-import org.brekka.phoenix.api.DerivedKey;
 
 /**
- * TODO Description of AsymmetricCryptoService
+ * TODO Description of RandomCryptoService
  *
  * @author Andrew Taylor (andrew@brekka.org)
  */
-public interface DerivedKeyCryptoService {
+public interface RandomCryptoService {
 
-    DerivedKey apply(byte[] key, byte[] salt, Integer iterations, CryptoProfile cryptoProfile);
+    SecureRandom getSecureRandom();
     
-    DerivedKey apply(byte[] key, CryptoProfile cryptoProfile);
-    
-    boolean check(byte[] key, DerivedKey derivedKey);
-
+    SecureRandom getSecureRandom(CryptoProfile cryptoProfile);
 }

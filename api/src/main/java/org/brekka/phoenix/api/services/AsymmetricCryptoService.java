@@ -17,7 +17,6 @@
 package org.brekka.phoenix.api.services;
 
 
-import org.brekka.phoenix.api.AsymmetricCryptoSpec;
 import org.brekka.phoenix.api.AsymmetricKey;
 import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.CryptoResult;
@@ -38,7 +37,7 @@ public interface AsymmetricCryptoService {
     
     PrivateKey toPrivateKey(byte[] encodedPrivateKeyBytes, CryptoProfile cryptoProfile);
     
-    <K extends AsymmetricKey> CryptoResult<AsymmetricCryptoSpec<K>> encrypt(byte[] data, K asymmetricKey);
+    <K extends AsymmetricKey> CryptoResult<K> encrypt(byte[] data, K asymmetricKey);
     
-    <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, AsymmetricCryptoSpec<K> cryptoSpec);
+    <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, K asymmetricKey);
 }

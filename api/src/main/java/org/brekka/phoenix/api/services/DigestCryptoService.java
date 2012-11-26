@@ -17,6 +17,7 @@
 package org.brekka.phoenix.api.services;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.DigestResult;
@@ -31,5 +32,9 @@ public interface DigestCryptoService {
 
     DigestResult digest(byte[] data, CryptoProfile cryptoProfile);
     
-    StreamCryptor<InputStream, DigestResult> digester(CryptoProfile cryptoProfile);
+    StreamCryptor<InputStream, DigestResult> inputDigester(CryptoProfile cryptoProfile);
+    
+    StreamCryptor<OutputStream, DigestResult> outputDigester(CryptoProfile cryptoProfile);
+    
+    int getDigestLength(CryptoProfile cryptoProfile);
 }

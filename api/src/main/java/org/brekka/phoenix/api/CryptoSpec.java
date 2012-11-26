@@ -23,5 +23,5 @@ package org.brekka.phoenix.api;
  */
 public interface CryptoSpec {
 
-    CryptoProfile getProfile();
+    CryptoProfile getCryptoProfile();
 }

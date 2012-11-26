@@ -29,7 +29,7 @@ public interface SymmetricCryptoSpec extends CryptoSpec {
      * 
      * @return
      */
-    SecretKey getKey();
+    SecretKey getSecretKey();
     
     /**
      * The Initialisation Vector

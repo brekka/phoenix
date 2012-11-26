@@ -48,7 +48,7 @@ class SymmetricCryptoSpecImpl extends AbstractCryptoSpec implements SymmetricCry
      * @see org.brekka.phoenix.api.SymmetricCryptoSpec#getKey()
      */
     @Override
-    public SecretKey getKey() {
+    public SecretKey getSecretKey() {
         return secretKey;
     }
 
@@ -63,7 +63,7 @@ class SymmetricCryptoSpecImpl extends AbstractCryptoSpec implements SymmetricCry
     /**
      * @return the secretKey
      */
-    public SecretKeyImpl getSecretKey() {
+    public SecretKeyImpl getSecretKeyImpl() {
         return secretKey;
     }
     

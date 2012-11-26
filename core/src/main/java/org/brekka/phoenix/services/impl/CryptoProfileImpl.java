@@ -7,14 +7,11 @@ import org.brekka.phoenix.config.CryptoFactory;
 import org.brekka.phoenix.config.CryptoFactory.SCryptKeyDerivation;
 import org.brekka.phoenix.config.CryptoFactory.StandardKeyDerivation;
 
-class CryptoProfileImpl implements org.brekka.phoenix.api.CryptoProfile{
+class CryptoProfileImpl implements org.brekka.phoenix.api.CryptoProfile {
 
-    private final int number;
-    
     private final CryptoFactory cryptoFactory;
     
-    public CryptoProfileImpl(int number, CryptoFactory cryptoFactory) {
-        this.number = number;
+    public CryptoProfileImpl(CryptoFactory cryptoFactory) {
         this.cryptoFactory = cryptoFactory;
     }
 
@@ -23,7 +20,7 @@ class CryptoProfileImpl implements org.brekka.phoenix.api.CryptoProfile{
      */
     @Override
     public int getNumber() {
-        return number;
+        return cryptoFactory.getProfileId();
     }
     
     public MessageDigest getDigestInstance() {

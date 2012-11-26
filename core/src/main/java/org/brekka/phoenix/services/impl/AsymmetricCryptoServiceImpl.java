@@ -101,11 +101,10 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public <K extends AsymmetricKey> CryptoResult<AsymmetricCryptoSpec<K>> encrypt(byte[] data,
+    public <K extends AsymmetricKey> CryptoResult<K> encrypt(byte[] data,
             K asymmetricKey) {
         AbstractAsymmetricKey<Key> keyImpl = narrowKey(asymmetricKey);
-        AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>> spec = new AsymmetricCryptoSpecImpl(keyImpl.getCryptoProfileImpl(), keyImpl);
-        Cipher cipher = getAsymmetricCipher(Cipher.ENCRYPT_MODE, spec);
+        Cipher cipher = getAsymmetricCipher(Cipher.ENCRYPT_MODE, keyImpl);
         byte[] cipherText;
         try {
             cipherText = cipher.doFinal(data);
@@ -113,16 +112,16 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
             throw new PhoenixException(PhoenixErrorCode.CP212, e,
                     "Failed to encrypt using asynchronous");
         }
-        return new CryptoResultImpl(spec, cipherText);
+        return new CryptoResultImpl(keyImpl, cipherText);
     }
     
     /* (non-Javadoc)
      * @see org.brekka.phoenix.api.services.AsymmetricCryptoService#decrypt(byte[], org.brekka.phoenix.api.AsymmetricCryptoSpec)
      */
     @Override
-    public <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, AsymmetricCryptoSpec<K> cryptoSpec) {
-        AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>> spec = narrowSpec(cryptoSpec);
-        Cipher cipher = getAsymmetricCipher(Cipher.DECRYPT_MODE, spec);
+    public <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, K asymmetricKey) {
+        AbstractAsymmetricKey<Key> keyImpl = narrowKey(asymmetricKey);
+        Cipher cipher = getAsymmetricCipher(Cipher.DECRYPT_MODE, keyImpl);
         byte[] data;
         try {
             data = cipher.doFinal(cipherText);
@@ -135,7 +134,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>> narrowSpec(AsymmetricCryptoSpec<?> spec) {
-        CryptoProfileImpl profile = narrowProfile(spec.getProfile());
+        CryptoProfileImpl profile = narrowProfile(spec.getCryptoProfile());
         if (spec instanceof AsymmetricCryptoSpecImpl) {
             return (AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>>) spec;
         }
@@ -145,7 +144,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
     
     @SuppressWarnings("unchecked")
     protected AbstractAsymmetricKey<Key> narrowKey(AsymmetricKey key) {
-        CryptoProfileImpl profile = narrowProfile(key.getProfile());
+        CryptoProfileImpl profile = narrowProfile(key.getCryptoProfile());
         AbstractAsymmetricKey<?> asymKey;
         if (key instanceof PublicKey) {
             PublicKey publicKey = (PublicKey) key;
@@ -160,9 +159,8 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
         return (AbstractAsymmetricKey<Key>) asymKey;
     }
     
-    protected Cipher getAsymmetricCipher(int mode, AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>> spec) {
-        AbstractAsymmetricKey<Key> key = spec.getKey();
-        CryptoFactory.Asymmetric asymmetric = spec.getCryptoProfileImpl().getAsymmetric();
+    protected Cipher getAsymmetricCipher(int mode, AbstractAsymmetricKey<Key> key) {
+        CryptoFactory.Asymmetric asymmetric = key.getCryptoProfileImpl().getAsymmetric();
         Cipher cipher = asymmetric.getInstance();
         try {
             Key realKey = key.getRealKey();

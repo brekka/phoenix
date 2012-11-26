@@ -31,8 +31,8 @@ public class CryptoFactoryImpl implements CryptoFactory {
             cryptoProfile.getMessageDigest().getStringValue(),
             cryptoProfile.getRandom().getStringValue(),
             new AsymmetricImpl(cryptoProfile.getAsymmetric()), 
-            new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()), 
-            new SCriptKeyDerivationImpl(cryptoProfile.getKeyDerivation().getSCrypt()),
+            (cryptoProfile.getKeyDerivation().getStandard() != null ? new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()) : null), 
+            (cryptoProfile.getKeyDerivation().getSCrypt() != null ? new SCriptKeyDerivationImpl(cryptoProfile.getKeyDerivation().getSCrypt()) : null),
             new SymmetricImpl(cryptoProfile.getSymmetric())
         );
     }

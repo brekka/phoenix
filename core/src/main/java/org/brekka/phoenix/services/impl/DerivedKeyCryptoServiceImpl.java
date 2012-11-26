@@ -49,10 +49,14 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
         DerivedKey result;
+        
         if (standardKeyDerivation == null) {
-            result = applySCript(key, profile);
+            SCryptKeyDerivation sCryptKeyDerivation = profile.getSCryptKeyDerivation();
+            byte[] salt = generateSalt(sCryptKeyDerivation.getSaltLength(), profile);
+            result = applySCript(key, salt, null, profile);
         } else {
-            result = applyStandard(key, profile);
+            byte[] salt = generateSalt(standardKeyDerivation.getSaltLength(), profile);
+            result = applyStandard(key, salt, null, profile);
         }
         return result;
     }
@@ -62,76 +66,48 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
      */
     @Override
     public boolean check(byte[] key, DerivedKey derivedKey) {
-        CryptoProfileImpl profile = narrowProfile(derivedKey.getProfile());
+        CryptoProfileImpl profile = narrowProfile(derivedKey.getCryptoProfile());
         StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
-        boolean result;
+        DerivedKey actual;
         if (standardKeyDerivation == null) {
-            result = checkSCript(key, derivedKey, profile);
+            actual = applySCript(key, derivedKey.getSalt(), derivedKey.getIterations(), profile);
         } else {
-            result = checkStandard(key, derivedKey, profile);
+            actual = applyStandard(key, derivedKey.getSalt(), derivedKey.getIterations(), profile);
+        }
+        return Arrays.equals(derivedKey.getDerivedKey(), actual.getDerivedKey());
+    }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.api.services.DerivedKeyCryptoService#apply(byte[], byte[], java.lang.Integer, org.brekka.phoenix.api.CryptoProfile)
+     */
+    @Override
+    public DerivedKey apply(byte[] key, byte[] salt, Integer iterations, CryptoProfile cryptoProfile) {
+        CryptoProfileImpl profile = narrowProfile(cryptoProfile);
+        StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
+        DerivedKey result;
+        if (standardKeyDerivation == null) {
+            result = applySCript(key, salt, iterations, profile);
+        } else {
+            result = applyStandard(key, salt, iterations, profile);
         }
         return result;
     }
 
     /**
      * @param key
-     * @param derivedKey
-     * @param profile
-     */
-    protected boolean checkStandard(byte[] key, DerivedKey derivedKey, CryptoProfileImpl profile) {
-        StandardKeyDerivation standardKeyDerivation = profile.getStandardKeyDerivation();
-        byte[] salt = derivedKey.getDerivedKey();
-        byte[] derived;
-        try {
-            // Ugly hack, not planning on using standard anyway
-            char[] pw = new String(key, "UTF-8").toCharArray();
-            PBEKeySpec pbeKeySpec = new PBEKeySpec(pw, salt, standardKeyDerivation.getIterations());
-            SecretKeyFactory secretKeyFactory = standardKeyDerivation.getSecretKeyFactory();
-            SecretKey pbeKey = secretKeyFactory.generateSecret(pbeKeySpec);
-            derived = pbeKey.getEncoded();
-        } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP300, e, 
-                    "Failed to perform encryption/decryption operation");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-        return Arrays.equals(derived, key);
-    }
-
-    /**
-     * @param key
-     * @param derivedKey
-     * @param profile
-     */
-    protected boolean checkSCript(byte[] key, DerivedKey derivedKey, CryptoProfileImpl profile) {
-        SCryptKeyDerivation sCryptKeyDerivation = profile.getSCryptKeyDerivation();
-        byte[] salt = derivedKey.getSalt();
-        int N = sCryptKeyDerivation.getIterationFactor();
-        int r = sCryptKeyDerivation.getMemoryFactor();
-        int p = sCryptKeyDerivation.getParallelisation();
-        int dkLen = sCryptKeyDerivation.getKeyLength();
-        byte[] derived;
-        try {
-            derived = SCrypt.scrypt(key, salt, N, r, p, dkLen);
-        } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP300, e, 
-                    "SCript error, profile %s", profile);
-        }
-        return Arrays.equals(derived, key);
-    }
-
-    /**
-     * @param key
      * @param cryptoProfile
      */
-    protected DerivedKey applyStandard(byte[] key, CryptoProfileImpl cryptoProfile) {
+    protected DerivedKey applyStandard(byte[] key, byte[] salt, Integer iterations, CryptoProfileImpl cryptoProfile) {
         StandardKeyDerivation standardKeyDerivation = cryptoProfile.getStandardKeyDerivation();
         byte[] derived;
-        byte[] salt = generateSalt(standardKeyDerivation.getSaltLength(), cryptoProfile);
+        int N = standardKeyDerivation.getIterations();
+        if (iterations != null) {
+            N = iterations.intValue();
+        }
         try {
             // Ugly hack, not planning on using standard anyway
             char[] pw = new String(key, "UTF-8").toCharArray();
-            PBEKeySpec pbeKeySpec = new PBEKeySpec(pw, salt, standardKeyDerivation.getIterations());
+            PBEKeySpec pbeKeySpec = new PBEKeySpec(pw, salt, N);
             SecretKeyFactory secretKeyFactory = standardKeyDerivation.getSecretKeyFactory();
             SecretKey pbeKey = secretKeyFactory.generateSecret(pbeKeySpec);
             derived = pbeKey.getEncoded();
@@ -141,17 +117,19 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
-        return new DerivedKeyImpl(cryptoProfile, null, salt, derived);
+        return new DerivedKeyImpl(cryptoProfile, standardKeyDerivation.getIterations(), salt, derived);
     }
 
     /**
      * @param key
      * @param cryptoProfile
      */
-    protected DerivedKey applySCript(byte[] key, CryptoProfileImpl profile) {
+    protected DerivedKey applySCript(byte[] key, byte[] salt, Integer iterations, CryptoProfileImpl profile) {
         SCryptKeyDerivation sCryptKeyDerivation = profile.getSCryptKeyDerivation();
-        byte[] salt = generateSalt(sCryptKeyDerivation.getSaltLength(), profile);
         int N = sCryptKeyDerivation.getIterationFactor();
+        if (iterations != null) {
+            N = iterations.intValue();
+        }
         int r = sCryptKeyDerivation.getMemoryFactor();
         int p = sCryptKeyDerivation.getParallelisation();
         int dkLen = sCryptKeyDerivation.getKeyLength();
@@ -162,7 +140,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
             throw new PhoenixException(PhoenixErrorCode.CP300, e, 
                     "SCript error, profile %s", profile);
         }
-        return new DerivedKeyImpl(profile, null, salt, derived);
+        return new DerivedKeyImpl(profile, N, salt, derived);
     }
     
     protected byte[] generateSalt(int length, CryptoProfileImpl profile) {

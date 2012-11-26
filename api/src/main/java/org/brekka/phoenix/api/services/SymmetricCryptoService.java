@@ -21,6 +21,7 @@ import java.io.OutputStream;
 
 import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.CryptoResult;
+import org.brekka.phoenix.api.DerivedKey;
 import org.brekka.phoenix.api.SecretKey;
 import org.brekka.phoenix.api.StreamCryptor;
 import org.brekka.phoenix.api.SymmetricCryptoSpec;
@@ -36,8 +37,11 @@ public interface SymmetricCryptoService {
     
     SecretKey toSecretKey(byte[] encodedKeyBytes, CryptoProfile cryptoProfile);
     
+    SymmetricCryptoSpec toSymmetricCryptoSpec(DerivedKey derivedKey);
     
     CryptoResult<SymmetricCryptoSpec> encrypt(byte[] data, SecretKey secretKey);
+    
+    CryptoResult<SymmetricCryptoSpec> encrypt(byte[] data, SymmetricCryptoSpec cryptoSpec);
     
     byte[] decrypt(byte[] data, SymmetricCryptoSpec symmetricSpec);
     
