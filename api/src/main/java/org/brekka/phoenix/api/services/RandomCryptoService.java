@@ -30,4 +30,6 @@ public interface RandomCryptoService {
     SecureRandom getSecureRandom();
     
     SecureRandom getSecureRandom(CryptoProfile cryptoProfile);
+    
+    byte[] generateBytes(int length);
 }

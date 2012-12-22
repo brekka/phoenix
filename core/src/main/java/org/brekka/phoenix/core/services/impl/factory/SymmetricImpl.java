@@ -1,6 +1,7 @@
 package org.brekka.phoenix.core.services.impl.factory;
 
 import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -18,8 +19,8 @@ class SymmetricImpl implements CryptoFactory.Symmetric {
     
     private final String algorithm;
     
-    public SymmetricImpl(SymmetricProfileType profile) {
-        this(
+    public SymmetricImpl(SecureRandom secureRandom, SymmetricProfileType profile) {
+        this(secureRandom,
             profile.getCipher().getAlgorithm().getStringValue(),
             profile.getKeyGenerator().getAlgorithm().getStringValue(),
             profile.getKeyGenerator().getKeyLength(),
@@ -27,10 +28,10 @@ class SymmetricImpl implements CryptoFactory.Symmetric {
         );
     }
     
-    public SymmetricImpl(String cipherAlgorithm, String keyAlgorithm, int keyLength, int ivLength) {
+    public SymmetricImpl(SecureRandom secureRandom, String cipherAlgorithm, String keyAlgorithm, int keyLength, int ivLength) {
         try {
             this.keyGenerator = KeyGenerator.getInstance(keyAlgorithm);
-            this.keyGenerator.init(keyLength);
+            this.keyGenerator.init(keyLength, secureRandom);
         } catch (GeneralSecurityException e) {
             throw new PhoenixException(PhoenixErrorCode.CP101, e, 
                     "Problem with the symmetric key generator algorithm '%s', key length %d", 

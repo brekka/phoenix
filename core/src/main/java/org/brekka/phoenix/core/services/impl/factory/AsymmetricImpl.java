@@ -4,6 +4,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 
@@ -20,8 +21,8 @@ class AsymmetricImpl implements CryptoFactory.Asymmetric {
     
     private final String algorithm;
     
-    public AsymmetricImpl(AsymmetricProfileType profile) {
-        this(
+    public AsymmetricImpl(SecureRandom secureRandom, AsymmetricProfileType profile) {
+        this(secureRandom,
             profile.getCipher().getAlgorithm().getStringValue(),
             profile.getKeyFactory().getAlgorithm().getStringValue(),
             profile.getKeyPairGenerator().getAlgorithm().getStringValue(),
@@ -29,12 +30,12 @@ class AsymmetricImpl implements CryptoFactory.Asymmetric {
         );
     }
     
-    public AsymmetricImpl(String cipherAlgorithm, String keyFactoryAlgorithm, String keyPairGeneratorAlgorithm, int keyPairLength) {
+    public AsymmetricImpl(SecureRandom secureRandom, String cipherAlgorithm, String keyFactoryAlgorithm, String keyPairGeneratorAlgorithm, int keyPairLength) {
         this.algorithm = cipherAlgorithm;
         try {
             this.keyFactory = KeyFactory.getInstance(keyFactoryAlgorithm);
             this.keyPairGenerator = KeyPairGenerator.getInstance(keyPairGeneratorAlgorithm);
-            this.keyPairGenerator.initialize(keyPairLength);
+            this.keyPairGenerator.initialize(keyPairLength, secureRandom);
         } catch (GeneralSecurityException e) {
             throw new PhoenixException(PhoenixErrorCode.CP205, e, 
                     "Key algorithm '%s' not found", algorithm);

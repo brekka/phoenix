@@ -44,4 +44,14 @@ public class RandomCryptoServiceImpl extends CryptoServiceSupport implements Ran
     public SecureRandom getSecureRandom() {
         return getSecureRandom(CryptoProfile.DEFAULT);
     }
+    
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.api.services.RandomCryptoService#generateRandomBytes(int)
+     */
+    @Override
+    public byte[] generateBytes(int length) {
+        byte[] data = new byte[length];
+        getSecureRandom().nextBytes(data);
+        return data;
+    }
 }

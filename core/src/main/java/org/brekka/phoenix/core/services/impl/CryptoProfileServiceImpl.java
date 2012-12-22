@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.services.CryptoProfileService;
+import org.brekka.phoenix.core.services.CryptoFactory;
 import org.brekka.phoenix.core.services.impl.factory.CryptoFactoryImpl;
 import org.brekka.xml.phoenix.v2.model.CryptoProfileDocument;
 import org.brekka.xml.phoenix.v2.model.CryptoProfileRegistryDocument.CryptoProfileRegistry;
@@ -43,7 +44,7 @@ public class CryptoProfileServiceImpl implements CryptoProfileService {
     public CryptoProfileServiceImpl(CryptoProfileRegistry cryptoProfileRegistry) {
         List<CryptoProfileDocument.CryptoProfile> cryptoProfileList = cryptoProfileRegistry.getCryptoProfileList();
         for (CryptoProfileDocument.CryptoProfile cryptoProfile : cryptoProfileList) {
-            CryptoFactoryImpl cryptoFactoryImpl = new CryptoFactoryImpl(cryptoProfile);
+            CryptoFactory cryptoFactoryImpl = CryptoFactoryImpl.newInstance(cryptoProfile);
             CryptoProfileImpl profile = new CryptoProfileImpl(cryptoFactoryImpl);
             this.profiles.put(profile.getNumber(), profile);
         }

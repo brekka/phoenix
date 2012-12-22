@@ -25,29 +25,12 @@ public class CryptoFactoryImpl implements CryptoFactory {
     
     private final Symmetric symmetric;
     
-    public CryptoFactoryImpl(CryptoProfile cryptoProfile) {
-        this(
-            cryptoProfile.getID(),
-            cryptoProfile.getMessageDigest().getStringValue(),
-            cryptoProfile.getRandom().getStringValue(),
-            new AsymmetricImpl(cryptoProfile.getAsymmetric()), 
-            (cryptoProfile.getKeyDerivation().getStandard() != null ? new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()) : null), 
-            (cryptoProfile.getKeyDerivation().getSCrypt() != null ? new SCriptKeyDerivationImpl(cryptoProfile.getKeyDerivation().getSCrypt()) : null),
-            new SymmetricImpl(cryptoProfile.getSymmetric())
-        );
-    }
-    
-    public CryptoFactoryImpl(int id, String messageDigestAlgorithm, String secureRandomAlgorithm, 
+    public CryptoFactoryImpl(int id, String messageDigestAlgorithm, SecureRandom secureRandom,
             Asymmetric asynchronous, StandardKeyDerivation standardKeyDerivation, SCryptKeyDerivation scryptKeyDerivation,
             Symmetric synchronous) {
         this.id = id;
         this.messageDigestAlgorithm = messageDigestAlgorithm;
-        try {
-            this.secureRandom = SecureRandom.getInstance(secureRandomAlgorithm);
-        } catch (NoSuchAlgorithmException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP400, e, 
-                    "Secure random algorithm '%s' not found", secureRandomAlgorithm);
-        }
+        this.secureRandom = secureRandom;
         this.asynchronous = asynchronous;
         this.standardKeyDerivation = standardKeyDerivation;
         this.scryptKeyDerivation = scryptKeyDerivation;
@@ -100,4 +83,22 @@ public class CryptoFactoryImpl implements CryptoFactory {
         return symmetric;
     }
 
+    public static CryptoFactory newInstance(CryptoProfile cryptoProfile) {
+        String randomAlgorithm = cryptoProfile.getRandom().getStringValue();
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance(randomAlgorithm);
+            return new CryptoFactoryImpl(
+                cryptoProfile.getID(),
+                cryptoProfile.getMessageDigest().getStringValue(),
+                secureRandom,
+                new AsymmetricImpl(secureRandom, cryptoProfile.getAsymmetric()), 
+                (cryptoProfile.getKeyDerivation().getStandard() != null ? new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()) : null), 
+                (cryptoProfile.getKeyDerivation().getSCrypt() != null ? new SCriptKeyDerivationImpl(cryptoProfile.getKeyDerivation().getSCrypt()) : null),
+                new SymmetricImpl(secureRandom, cryptoProfile.getSymmetric())
+            );
+        } catch (NoSuchAlgorithmException e) {
+            throw new PhoenixException(PhoenixErrorCode.CP400, e, 
+                    "Secure random algorithm '%s' not found", randomAlgorithm);
+        }
+    }
 }
