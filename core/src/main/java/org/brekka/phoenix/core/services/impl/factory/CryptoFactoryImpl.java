@@ -3,11 +3,17 @@ package org.brekka.phoenix.core.services.impl.factory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.brekka.phoenix.core.PhoenixErrorCode;
 import org.brekka.phoenix.core.PhoenixException;
 import org.brekka.phoenix.core.services.CryptoFactory;
 import org.brekka.xml.phoenix.v2.model.CryptoProfileDocument.CryptoProfile;
+import org.brekka.xml.phoenix.v2.model.EnvironmentSpecificAlgorithmType;
+import org.brekka.xml.phoenix.v2.model.EnvironmentType;
+import org.brekka.xml.phoenix.v2.model.EnvironmentType.Enum;
 
 public class CryptoFactoryImpl implements CryptoFactory {
 
@@ -84,7 +90,7 @@ public class CryptoFactoryImpl implements CryptoFactory {
     }
 
     public static CryptoFactory newInstance(CryptoProfile cryptoProfile) {
-        String randomAlgorithm = cryptoProfile.getRandom().getStringValue();
+        String randomAlgorithm = identifyForEnvironment(cryptoProfile.getRandomList());
         try {
             SecureRandom secureRandom = SecureRandom.getInstance(randomAlgorithm);
             return new CryptoFactoryImpl(
@@ -100,5 +106,27 @@ public class CryptoFactoryImpl implements CryptoFactory {
             throw new PhoenixException(PhoenixErrorCode.CP400, e, 
                     "Secure random algorithm '%s' not found", randomAlgorithm);
         }
+    }
+
+    /**
+     * @param randomList
+     * @return
+     */
+    private static String identifyForEnvironment(List<EnvironmentSpecificAlgorithmType> algorithmList) {
+        Set<EnvironmentType.Enum> available = EnviromentUtils.ENVIRONMENT_TYPES;
+        EnvironmentSpecificAlgorithmType defaultAlgorithm = null;
+        for (EnvironmentSpecificAlgorithmType algorithm : algorithmList) {
+            if (!algorithm.isSetEnvironment()
+                    || algorithm.getEnvironment().equals(EnvironmentType.OTHER)) {
+                defaultAlgorithm = algorithm;
+            } else if (available.contains(algorithm.getEnvironment())) {
+                // Specific to our environment
+                return algorithm.getStringValue();
+            }
+        }
+        if (defaultAlgorithm == null) {
+            throw new PhoenixException(PhoenixErrorCode.CP451, "No default algorithm found and no match for environment '%s'", available);
+        }
+        return defaultAlgorithm.getStringValue();
     }
 }

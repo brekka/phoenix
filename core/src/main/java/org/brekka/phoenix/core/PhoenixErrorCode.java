@@ -39,6 +39,8 @@ public enum PhoenixErrorCode implements ErrorCode {
     
     CP400,
     
+    CP451,
+    
     CP700,
     
     CP800,
