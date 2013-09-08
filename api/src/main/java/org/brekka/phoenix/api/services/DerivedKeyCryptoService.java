@@ -20,16 +20,19 @@ import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.DerivedKey;
 
 /**
- * TODO Description of AsymmetricCryptoService
- *
+ * Normally used for protecting passwords.
+ * 
+ * Convert a key into another representation from which it hoped it is impossible to extract the original, also ensuring
+ * that the resulting representation has a very low chance of collision with the results of other keys.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface DerivedKeyCryptoService {
 
     DerivedKey apply(byte[] key, byte[] salt, Integer iterations, CryptoProfile cryptoProfile);
-    
+
     DerivedKey apply(byte[] key, CryptoProfile cryptoProfile);
-    
+
     boolean check(byte[] key, DerivedKey derivedKey);
 
 }

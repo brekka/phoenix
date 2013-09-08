@@ -17,8 +17,8 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of CryptoSpec
- *
+ * An item of cryptographic data that is tied to a given profile. Should probably be renamed...
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface CryptoSpec {

@@ -53,7 +53,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
         if (standardKeyDerivation == null) {
             SCryptKeyDerivation sCryptKeyDerivation = profile.getFactory().getSCryptKeyDerivation();
             byte[] salt = generateSalt(sCryptKeyDerivation.getSaltLength(), profile);
-            result = applySCript(key, salt, null, profile);
+            result = applySCrypt(key, salt, null, profile);
         } else {
             byte[] salt = generateSalt(standardKeyDerivation.getSaltLength(), profile);
             result = applyStandard(key, salt, null, profile);
@@ -70,7 +70,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
         StandardKeyDerivation standardKeyDerivation = profile.getFactory().getStandardKeyDerivation();
         DerivedKey actual;
         if (standardKeyDerivation == null) {
-            actual = applySCript(key, derivedKey.getSalt(), derivedKey.getIterations(), profile);
+            actual = applySCrypt(key, derivedKey.getSalt(), derivedKey.getIterations(), profile);
         } else {
             actual = applyStandard(key, derivedKey.getSalt(), derivedKey.getIterations(), profile);
         }
@@ -86,7 +86,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
         StandardKeyDerivation standardKeyDerivation = profile.getFactory().getStandardKeyDerivation();
         DerivedKey result;
         if (standardKeyDerivation == null) {
-            result = applySCript(key, salt, iterations, profile);
+            result = applySCrypt(key, salt, iterations, profile);
         } else {
             result = applyStandard(key, salt, iterations, profile);
         }
@@ -124,7 +124,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
      * @param key
      * @param cryptoProfile
      */
-    protected DerivedKey applySCript(byte[] key, byte[] salt, Integer iterations, CryptoProfileImpl profile) {
+    protected DerivedKey applySCrypt(byte[] key, byte[] salt, Integer iterations, CryptoProfileImpl profile) {
         SCryptKeyDerivation sCryptKeyDerivation = profile.getFactory().getSCryptKeyDerivation();
         int N = sCryptKeyDerivation.getIterationFactor();
         if (iterations != null) {
@@ -138,7 +138,7 @@ public class DerivedKeyCryptoServiceImpl extends CryptoServiceSupport implements
             derived = SCrypt.scrypt(key, salt, N, r, p, dkLen);
         } catch (GeneralSecurityException e) {
             throw new PhoenixException(PhoenixErrorCode.CP300, e, 
-                    "SCript error, profile %s", profile);
+                    "SCrypt error, profile %s", profile);
         }
         return new DerivedKeyImpl(profile, N, salt, derived);
     }

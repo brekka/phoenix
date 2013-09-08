@@ -17,10 +17,10 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of SecretKey
- *
+ * Marker interface used to identify this key as being part of an asymmetric key pair (either private or public)
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface AsymmetricKey extends Key {
-    
+
 }

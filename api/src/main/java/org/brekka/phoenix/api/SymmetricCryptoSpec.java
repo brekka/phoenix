@@ -16,21 +16,20 @@
 
 package org.brekka.phoenix.api;
 
-
 /**
- * TODO Description of SymmetricCryptoSpec
- *
+ * Specification for a symmetric crypto operation containing the secret key and the Initialisation Vector (IV).
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface SymmetricCryptoSpec extends CryptoSpec {
-    
+
     /**
      * The encryption key
      * 
      * @return
      */
     SecretKey getSecretKey();
-    
+
     /**
      * The Initialisation Vector
      * 

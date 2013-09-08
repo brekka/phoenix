@@ -24,17 +24,17 @@ import org.brekka.phoenix.api.DigestResult;
 import org.brekka.phoenix.api.StreamCryptor;
 
 /**
- * TODO Description of DigestCryptoService
- *
+ * Carry out message digest operations.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface DigestCryptoService {
 
     DigestResult digest(byte[] data, CryptoProfile cryptoProfile);
-    
+
     StreamCryptor<InputStream, DigestResult> inputDigester(CryptoProfile cryptoProfile);
-    
+
     StreamCryptor<OutputStream, DigestResult> outputDigester(CryptoProfile cryptoProfile);
-    
+
     int getDigestLength(CryptoProfile cryptoProfile);
 }

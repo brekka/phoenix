@@ -17,15 +17,16 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of DerivedKey
- *
+ * A key that has had a one-way operation performed on it. Performing the same operation on the same inputs returns the
+ * same result. However it is not possible to retrieve the original key from the derived key.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface DerivedKey extends CryptoSpec {
 
     Integer getIterations();
-    
+
     byte[] getSalt();
-    
+
     byte[] getDerivedKey();
 }

@@ -17,8 +17,8 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of PublicKey
- *
+ * Public key part of a key pair. The public key is normally unprotected.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface PublicKey extends AsymmetricKey {

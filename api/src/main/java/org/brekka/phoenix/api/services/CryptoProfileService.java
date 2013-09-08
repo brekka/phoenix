@@ -19,13 +19,13 @@ package org.brekka.phoenix.api.services;
 import org.brekka.phoenix.api.CryptoProfile;
 
 /**
- * TODO Description of CryptoProfileService
- *
+ * Retrieve the profile identified by its issued number.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface CryptoProfileService {
 
     CryptoProfile retrieveProfile(int profileNumber);
-    
+
     CryptoProfile retrieveDefault();
 }

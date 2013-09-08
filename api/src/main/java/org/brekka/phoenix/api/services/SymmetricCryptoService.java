@@ -27,25 +27,26 @@ import org.brekka.phoenix.api.StreamCryptor;
 import org.brekka.phoenix.api.SymmetricCryptoSpec;
 
 /**
- * TODO Description of SymmetricCryptoService
- *
+ * For encrypting large amounts of information with a key that then needs to be protected using a password or asymmetric
+ * key.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface SymmetricCryptoService {
 
     SecretKey createSecretKey(CryptoProfile cryptoProfile);
-    
+
     SecretKey toSecretKey(byte[] encodedKeyBytes, CryptoProfile cryptoProfile);
-    
+
     SymmetricCryptoSpec toSymmetricCryptoSpec(DerivedKey derivedKey);
-    
+
     CryptoResult<SymmetricCryptoSpec> encrypt(byte[] data, SecretKey secretKey);
-    
+
     CryptoResult<SymmetricCryptoSpec> encrypt(byte[] data, SymmetricCryptoSpec cryptoSpec);
-    
+
     byte[] decrypt(byte[] data, SymmetricCryptoSpec symmetricSpec);
-    
+
     StreamCryptor<OutputStream, SymmetricCryptoSpec> encryptor(SecretKey secretKey);
-    
+
     StreamCryptor<InputStream, SymmetricCryptoSpec> decryptor(SymmetricCryptoSpec symmetricSpec);
 }

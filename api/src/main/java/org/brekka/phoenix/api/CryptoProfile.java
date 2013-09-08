@@ -17,16 +17,18 @@
 package org.brekka.phoenix.api;
 
 /**
- * CryptoProfile
+ * Applications will refer to a given profile via an instance of this class. It's contract is simply to return the
+ * unique number assigned to the profile.
  * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface CryptoProfile {
-    
+
     public static final CryptoProfile DEFAULT = CryptoProfile.Static.of(0);
 
     /**
      * The number of this profile
+     * 
      * @return
      */
     int getNumber();
@@ -37,7 +39,7 @@ public interface CryptoProfile {
     public static class Static implements CryptoProfile {
 
         private final int number;
-        
+
         /**
          * @param number
          */
@@ -51,7 +53,7 @@ public interface CryptoProfile {
         public int getNumber() {
             return number;
         }
-        
+
         public static CryptoProfile of(int number) {
             return new Static(number);
         }

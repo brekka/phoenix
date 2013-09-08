@@ -16,7 +16,6 @@
 
 package org.brekka.phoenix.api.services;
 
-
 import org.brekka.phoenix.api.AsymmetricKey;
 import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.CryptoResult;
@@ -25,19 +24,20 @@ import org.brekka.phoenix.api.PrivateKey;
 import org.brekka.phoenix.api.PublicKey;
 
 /**
- * TODO Description of AsymmetricCryptoService
- *
+ * Encrypt a small piece of data with one (public) key so that it can only be decrypted by the corresponding (private)
+ * key.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface AsymmetricCryptoService {
-    
+
     KeyPair createKeyPair(CryptoProfile cryptoProfile);
 
     PublicKey toPublicKey(byte[] encodedPublicKeyBytes, CryptoProfile cryptoProfile);
-    
+
     PrivateKey toPrivateKey(byte[] encodedPrivateKeyBytes, CryptoProfile cryptoProfile);
-    
+
     <K extends AsymmetricKey> CryptoResult<K> encrypt(byte[] data, K asymmetricKey);
-    
+
     <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, K asymmetricKey);
 }

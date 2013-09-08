@@ -17,8 +17,8 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of SecretKey
- *
+ * Identifies a secret key used for symmetric cryptography.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface SecretKey extends Key {

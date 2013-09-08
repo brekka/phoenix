@@ -17,11 +17,11 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of SecretKey
- *
+ * The most basic type of cryptographic key, which can always be represented as an array of bytes.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface Key extends CryptoSpec {
-    
+
     byte[] getEncoded();
 }

@@ -17,8 +17,8 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of DigestResult
- *
+ * The result of a message digest operation (such as SHA-256).
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface DigestResult extends CryptoSpec {

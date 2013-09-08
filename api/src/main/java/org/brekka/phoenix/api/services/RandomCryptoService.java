@@ -21,15 +21,15 @@ import java.security.SecureRandom;
 import org.brekka.phoenix.api.CryptoProfile;
 
 /**
- * TODO Description of RandomCryptoService
- *
+ * For obtaining sources of entropy.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface RandomCryptoService {
 
     SecureRandom getSecureRandom();
-    
+
     SecureRandom getSecureRandom(CryptoProfile cryptoProfile);
-    
+
     byte[] generateBytes(int length);
 }

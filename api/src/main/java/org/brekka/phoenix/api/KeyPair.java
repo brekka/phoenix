@@ -17,13 +17,13 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of KeyPair
- *
+ * The pair of a public and private key
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface KeyPair {
 
     PublicKey getPublicKey();
-    
+
     PrivateKey getPrivateKey();
 }

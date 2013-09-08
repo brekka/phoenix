@@ -17,14 +17,15 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of AsymmetricCryptoSpec
- *
+ * Key specification for an asymmetric key that includes the key and the profile used to create it.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface AsymmetricCryptoSpec<K extends AsymmetricKey> extends CryptoSpec {
 
     /**
      * The key used for the encryption
+     * 
      * @return
      */
     K getKey();

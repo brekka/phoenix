@@ -17,8 +17,8 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of PrivateKey
- *
+ * Private key part of a key pair. The private key is normally the one kept secret.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface PrivateKey extends AsymmetricKey {

@@ -16,15 +16,17 @@
 
 package org.brekka.phoenix.api;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
- * TODO Description of StreamCryptor
- *
+ * Perform streaming based crypto on what is most likely an {@link InputStream} or {@link OutputStream}.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface StreamCryptor<Stream, T extends CryptoSpec> {
 
     T getSpec();
-    
+
     Stream getStream(Stream stream);
 }

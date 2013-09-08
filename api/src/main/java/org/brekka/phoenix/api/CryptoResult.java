@@ -17,13 +17,13 @@
 package org.brekka.phoenix.api;
 
 /**
- * TODO Description of CryptoResult
- *
+ * The result of a cryptographic operation, returning the cipher text and the specification used in the operation.
+ * 
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface CryptoResult<T extends CryptoSpec> {
 
     T getSpec();
-    
+
     byte[] getCipherText();
 }
