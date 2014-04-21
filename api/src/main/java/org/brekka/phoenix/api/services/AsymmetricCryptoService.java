@@ -22,11 +22,12 @@ import org.brekka.phoenix.api.CryptoResult;
 import org.brekka.phoenix.api.KeyPair;
 import org.brekka.phoenix.api.PrivateKey;
 import org.brekka.phoenix.api.PublicKey;
+import org.w3c.dom.Document;
 
 /**
  * Encrypt a small piece of data with one (public) key so that it can only be decrypted by the corresponding (private)
  * key.
- * 
+ *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface AsymmetricCryptoService {
@@ -40,4 +41,14 @@ public interface AsymmetricCryptoService {
     <K extends AsymmetricKey> CryptoResult<K> encrypt(byte[] data, K asymmetricKey);
 
     <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, K asymmetricKey);
+
+    /**
+     * Sign an XML document using the specified key pair.
+     *
+     * @param document
+     * @param keyPair
+     * @param cryptoProfile determines which algorithms will be used
+     * @return
+     */
+    Document sign(final Document document, KeyPair keyPair);
 }

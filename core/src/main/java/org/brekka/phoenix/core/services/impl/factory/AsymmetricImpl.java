@@ -32,49 +32,65 @@ import org.brekka.xml.phoenix.v2.model.AsymmetricProfileType;
 class AsymmetricImpl implements CryptoFactory.Asymmetric {
 
     private final KeyFactory keyFactory;
-    
+
     private final KeyPairGenerator keyPairGenerator;
-    
+
     private final String algorithm;
-    
-    public AsymmetricImpl(SecureRandom secureRandom, AsymmetricProfileType profile) {
+
+    private final Signing signing;
+
+    public AsymmetricImpl(final SecureRandom secureRandom, final AsymmetricProfileType profile) {
         this(secureRandom,
             profile.getCipher().getAlgorithm().getStringValue(),
             profile.getKeyFactory().getAlgorithm().getStringValue(),
             profile.getKeyPairGenerator().getAlgorithm().getStringValue(),
-            profile.getKeyPairGenerator().getKeyLength()
+            profile.getKeyPairGenerator().getKeyLength(),
+            profile.isSetSigning() ? new SigningImpl(profile.getSigning()) : null
         );
     }
-    
-    public AsymmetricImpl(SecureRandom secureRandom, String cipherAlgorithm, String keyFactoryAlgorithm, String keyPairGeneratorAlgorithm, int keyPairLength) {
+
+    public AsymmetricImpl(final SecureRandom secureRandom, final String cipherAlgorithm, final String keyFactoryAlgorithm,
+            final String keyPairGeneratorAlgorithm, final int keyPairLength, final Signing signing) {
         this.algorithm = cipherAlgorithm;
         try {
             this.keyFactory = KeyFactory.getInstance(keyFactoryAlgorithm);
             this.keyPairGenerator = KeyPairGenerator.getInstance(keyPairGeneratorAlgorithm);
             this.keyPairGenerator.initialize(keyPairLength, secureRandom);
         } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP205, e, 
-                    "Key algorithm '%s' not found", algorithm);
+            throw new PhoenixException(PhoenixErrorCode.CP205, e,
+                    "Key algorithm '%s' not found", this.algorithm);
         }
+        this.signing = signing;
     }
 
     @Override
     public KeyFactory getKeyFactory() {
-        return keyFactory;
+        return this.keyFactory;
     }
-    
+
     @Override
     public KeyPair generateKeyPair() {
-        return keyPairGenerator.generateKeyPair();
+        return this.keyPairGenerator.generateKeyPair();
+    }
+
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.core.services.CryptoFactory.Asymmetric#getSigning()
+     */
+    @Override
+    public Signing getSigning() {
+        if (this.signing == null) {
+            throw new IllegalStateException("Signing has not been configured for this profile.");
+        }
+        return this.signing;
     }
 
     @Override
     public Cipher getInstance() {
         try {
-            return Cipher.getInstance(algorithm);
+            return Cipher.getInstance(this.algorithm);
         } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP205, e, 
-                    "Asymmetric key algorithm '%s' not found", algorithm);
+            throw new PhoenixException(PhoenixErrorCode.CP205, e,
+                    "Asymmetric key algorithm '%s' not found", this.algorithm);
         }
     }
 

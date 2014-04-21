@@ -19,7 +19,6 @@ package org.brekka.phoenix.core.services.impl.factory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -29,27 +28,26 @@ import org.brekka.phoenix.core.services.CryptoFactory;
 import org.brekka.xml.phoenix.v2.model.CryptoProfileDocument.CryptoProfile;
 import org.brekka.xml.phoenix.v2.model.EnvironmentSpecificAlgorithmType;
 import org.brekka.xml.phoenix.v2.model.EnvironmentType;
-import org.brekka.xml.phoenix.v2.model.EnvironmentType.Enum;
 
 public class CryptoFactoryImpl implements CryptoFactory {
 
     private final int id;
-    
+
     private final String messageDigestAlgorithm;
-    
+
     private final SecureRandom secureRandom;
-    
+
     private final Asymmetric asynchronous;
-    
+
     private final StandardKeyDerivation standardKeyDerivation;
-    
+
     private final SCryptKeyDerivation scryptKeyDerivation;
-    
+
     private final Symmetric symmetric;
-    
-    public CryptoFactoryImpl(int id, String messageDigestAlgorithm, SecureRandom secureRandom,
-            Asymmetric asynchronous, StandardKeyDerivation standardKeyDerivation, SCryptKeyDerivation scryptKeyDerivation,
-            Symmetric synchronous) {
+
+    public CryptoFactoryImpl(final int id, final String messageDigestAlgorithm, final SecureRandom secureRandom,
+            final Asymmetric asynchronous, final StandardKeyDerivation standardKeyDerivation, final SCryptKeyDerivation scryptKeyDerivation,
+            final Symmetric synchronous) {
         this.id = id;
         this.messageDigestAlgorithm = messageDigestAlgorithm;
         this.secureRandom = secureRandom;
@@ -61,27 +59,27 @@ public class CryptoFactoryImpl implements CryptoFactory {
 
     @Override
     public int getProfileId() {
-        return id;
+        return this.id;
     }
 
     @Override
     public MessageDigest getDigestInstance() {
         try {
-            return MessageDigest.getInstance(messageDigestAlgorithm);
+            return MessageDigest.getInstance(this.messageDigestAlgorithm);
         } catch (NoSuchAlgorithmException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP100, e, 
-                    "Message digest algorithm '%s' not found", messageDigestAlgorithm);
+            throw new PhoenixException(PhoenixErrorCode.CP100, e,
+                    "Message digest algorithm '%s' not found", this.messageDigestAlgorithm);
         }
     }
-    
+
     @Override
     public SecureRandom getSecureRandom() {
-        return secureRandom;
+        return this.secureRandom;
     }
 
     @Override
     public Asymmetric getAsymmetric() {
-        return asynchronous;
+        return this.asynchronous;
     }
 
     /* (non-Javadoc)
@@ -89,23 +87,23 @@ public class CryptoFactoryImpl implements CryptoFactory {
      */
     @Override
     public SCryptKeyDerivation getSCryptKeyDerivation() {
-        return scryptKeyDerivation;
+        return this.scryptKeyDerivation;
     }
-    
+
     /* (non-Javadoc)
      * @see org.brekka.phoenix.CryptoFactory#getStandardKeyDerivation()
      */
     @Override
     public StandardKeyDerivation getStandardKeyDerivation() {
-        return standardKeyDerivation;
+        return this.standardKeyDerivation;
     }
 
     @Override
     public Symmetric getSymmetric() {
-        return symmetric;
+        return this.symmetric;
     }
 
-    public static CryptoFactory newInstance(CryptoProfile cryptoProfile) {
+    public static CryptoFactory newInstance(final CryptoProfile cryptoProfile) {
         String randomAlgorithm = identifyForEnvironment(cryptoProfile.getRandomList());
         try {
             SecureRandom secureRandom = SecureRandom.getInstance(randomAlgorithm);
@@ -113,13 +111,13 @@ public class CryptoFactoryImpl implements CryptoFactory {
                 cryptoProfile.getID(),
                 cryptoProfile.getMessageDigest().getStringValue(),
                 secureRandom,
-                new AsymmetricImpl(secureRandom, cryptoProfile.getAsymmetric()), 
-                (cryptoProfile.getKeyDerivation().getStandard() != null ? new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()) : null), 
+                new AsymmetricImpl(secureRandom, cryptoProfile.getAsymmetric()),
+                (cryptoProfile.getKeyDerivation().getStandard() != null ? new StandardKeyDerivationImpl(cryptoProfile.getKeyDerivation().getStandard()) : null),
                 (cryptoProfile.getKeyDerivation().getSCrypt() != null ? new SCriptKeyDerivationImpl(cryptoProfile.getKeyDerivation().getSCrypt()) : null),
                 new SymmetricImpl(secureRandom, cryptoProfile.getSymmetric())
             );
         } catch (NoSuchAlgorithmException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP400, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP400, e,
                     "Secure random algorithm '%s' not found", randomAlgorithm);
         }
     }
@@ -128,7 +126,7 @@ public class CryptoFactoryImpl implements CryptoFactory {
      * @param randomList
      * @return
      */
-    private static String identifyForEnvironment(List<EnvironmentSpecificAlgorithmType> algorithmList) {
+    private static String identifyForEnvironment(final List<EnvironmentSpecificAlgorithmType> algorithmList) {
         Set<EnvironmentType.Enum> available = EnviromentUtils.ENVIRONMENT_TYPES;
         EnvironmentSpecificAlgorithmType defaultAlgorithm = null;
         for (EnvironmentSpecificAlgorithmType algorithm : algorithmList) {

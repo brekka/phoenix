@@ -24,39 +24,54 @@ import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKeyFactory;
+import javax.xml.crypto.dsig.XMLSignatureFactory;
 
 public interface CryptoFactory {
 
     int getProfileId();
-    
+
     MessageDigest getDigestInstance();
-    
+
     SecureRandom getSecureRandom();
-    
+
     Symmetric getSymmetric();
-    
+
     Asymmetric getAsymmetric();
-    
+
     StandardKeyDerivation getStandardKeyDerivation();
-    
+
     SCryptKeyDerivation getSCryptKeyDerivation();
-    
+
     interface Asymmetric {
         KeyFactory getKeyFactory();
-        
+
         KeyPair generateKeyPair();
-        
+
         Cipher getInstance();
+
+        Signing getSigning();
+
+        interface Signing {
+            XMLSignatureFactory getSignatureFactory();
+
+            String getDigestMethodAlgorithm();
+
+            String getTransformAlgorithm();
+
+            String getCanonicalizationMethodAlgorithm();
+
+            String getSignatureMethodAlgorithm();
+        }
     }
-    
+
     interface StandardKeyDerivation {
         SecretKeyFactory getSecretKeyFactory();
-        
+
         int getSaltLength();
-        
+
         int getIterations();
     }
-    
+
     interface SCryptKeyDerivation {
         int getSaltLength();
         int getIterationFactor();
@@ -64,12 +79,12 @@ public interface CryptoFactory {
         int getParallelisation();
         int getKeyLength();
     }
-    
+
     interface Symmetric {
         KeyGenerator getKeyGenerator();
-        
+
         Cipher getInstance();
-        
+
         int getIvLength();
     }
 }

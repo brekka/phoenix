@@ -1,67 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://brekka.org/xml/phoenix/v2/model"
-	xmlns:x="http://brekka.org/xml/phoenix/v2/model" elementFormDefault="qualified"
-	attributeFormDefault="unqualified">
-	
-	<!-- 
-		Elements
-	 -->
-	
-	<xsd:element name="CryptoProfileRegistry">
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="DefaultProfileID" type="xsd:int" minOccurs="1" maxOccurs="1" />
-				<xsd:element ref="x:CryptoProfile"                  minOccurs="1" maxOccurs="unbounded" />
-			</xsd:sequence>
-		</xsd:complexType>
-	</xsd:element>
-	
-	<xsd:element name="CryptoProfile">
-		<xsd:complexType>
-			<xsd:sequence>
-				<xsd:element name="ID" type="xsd:int" minOccurs="1" maxOccurs="1" />
-				<xsd:element name="Label"         type="xsd:string"                 minOccurs="1" maxOccurs="1" />
-				<xsd:element name="Random"        type="x:EnvironmentSpecificAlgorithmType" minOccurs="1" maxOccurs="unbounded" />
-				<xsd:element name="MessageDigest" type="x:AlgorithmType"            minOccurs="1" maxOccurs="1" />
-				<xsd:element name="Symmetric"     type="x:SymmetricProfileType"     minOccurs="1" maxOccurs="1" />
-				<xsd:element name="Asymmetric"    type="x:AsymmetricProfileType"    minOccurs="1" maxOccurs="1" />
-				<xsd:element name="KeyDerivation" type="x:KeyDerivationProfileType" minOccurs="1" maxOccurs="1" />
-			</xsd:sequence>
-		</xsd:complexType>
- 	</xsd:element>
- 	
- 	<xsd:element name="SymmetricProfile"     type="x:SymmetricProfileType" />
- 	<xsd:element name="AsymmetricProfile"    type="x:AsymmetricProfileType" />
- 	<xsd:element name="KeyDerivationProfile" type="x:KeyDerivationProfileType" />
+    xmlns:x="http://brekka.org/xml/phoenix/v2/model" elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+    
+    <!-- 
+        Elements
+     -->
+    
+    <xsd:element name="CryptoProfileRegistry">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="DefaultProfileID" type="xsd:int" minOccurs="1" maxOccurs="1" />
+                <xsd:element ref="x:CryptoProfile"                  minOccurs="1" maxOccurs="unbounded" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="CryptoProfile">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="ID" type="xsd:int" minOccurs="1" maxOccurs="1" />
+                <xsd:element name="Label"         type="xsd:string"                 minOccurs="1" maxOccurs="1" />
+                <xsd:element name="Random"        type="x:EnvironmentSpecificAlgorithmType" minOccurs="1" maxOccurs="unbounded" />
+                <xsd:element name="MessageDigest" type="x:AlgorithmType"            minOccurs="1" maxOccurs="1" />
+                <xsd:element name="Symmetric"     type="x:SymmetricProfileType"     minOccurs="1" maxOccurs="1" />
+                <xsd:element name="Asymmetric"    type="x:AsymmetricProfileType"    minOccurs="1" maxOccurs="1" />
+                <xsd:element name="KeyDerivation" type="x:KeyDerivationProfileType" minOccurs="1" maxOccurs="1" />
+            </xsd:sequence>
+        </xsd:complexType>
+     </xsd:element>
+     
+     <xsd:element name="SymmetricProfile"     type="x:SymmetricProfileType" />
+     <xsd:element name="AsymmetricProfile"    type="x:AsymmetricProfileType" />
+     <xsd:element name="KeyDerivationProfile" type="x:KeyDerivationProfileType" />
 
-	<!-- 
-		Complex types
-	 -->
+    <!-- 
+        Complex types
+     -->
 
-	<xsd:complexType name="SymmetricProfileType">
-		<xsd:sequence>
-		    <xsd:element name="Cipher"       type="x:CipherType"       minOccurs="1" maxOccurs="1" />
-			<xsd:element name="KeyGenerator" type="x:KeyGeneratorType" minOccurs="1" maxOccurs="1" />
-			<xsd:element name="IVLength"     type="xsd:int"            minOccurs="1" maxOccurs="1" />
-		</xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="AsymmetricProfileType">
-		<xsd:sequence>
-		    <xsd:element name="Cipher"           type="x:CipherType"       minOccurs="1" maxOccurs="1" />
-			<xsd:element name="KeyPairGenerator" type="x:KeyGeneratorType" minOccurs="1" maxOccurs="1" />
-			<xsd:element name="KeyFactory"                                 minOccurs="1" maxOccurs="1">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="Algorithm" type="x:AlgorithmType"    minOccurs="1" maxOccurs="1" />
-					</xsd:sequence>
-				</xsd:complexType>
-			</xsd:element>
-		</xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="KeyDerivationProfileType">
-		<xsd:choice>
+    <xsd:complexType name="SymmetricProfileType">
+        <xsd:sequence>
+            <xsd:element name="Cipher"       type="x:CipherType"       minOccurs="1" maxOccurs="1" />
+            <xsd:element name="KeyGenerator" type="x:KeyGeneratorType" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="IVLength"     type="xsd:int"            minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="AsymmetricProfileType">
+        <xsd:sequence>
+            <xsd:element name="Cipher"           type="x:CipherType"       minOccurs="1" maxOccurs="1" />
+            <xsd:element name="KeyPairGenerator" type="x:KeyGeneratorType" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="KeyFactory"                                 minOccurs="1" maxOccurs="1">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="Algorithm" type="x:AlgorithmType"    minOccurs="1" maxOccurs="1" />
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="Signing" type="x:SigningType" minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="KeyDerivationProfileType">
+        <xsd:choice>
             <xsd:element name="Standard">
                 <xsd:complexType>
                     <xsd:sequence>
@@ -88,28 +89,38 @@
                     </xsd:sequence>
                 </xsd:complexType>
             </xsd:element>
-		</xsd:choice>
-		
-	</xsd:complexType>
-	
-	<xsd:complexType name="CipherType">
-		<xsd:sequence>
-			<xsd:element name="Algorithm" type="x:AlgorithmType" minOccurs="1" maxOccurs="1" />
-		</xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="KeyGeneratorType">
-		<xsd:sequence>
-			<xsd:element name="Algorithm" type="x:AlgorithmType" minOccurs="1" maxOccurs="1" />
-			<xsd:element name="KeyLength" type="xsd:int"         minOccurs="1" maxOccurs="1" />
-		</xsd:sequence>
-	</xsd:complexType>
-	
-	<xsd:complexType name="AlgorithmType">
-		<xsd:simpleContent>
-			<xsd:extension base="xsd:string" />
-		</xsd:simpleContent>
-	</xsd:complexType>
+        </xsd:choice>
+        
+    </xsd:complexType>
+    
+    <xsd:complexType name="CipherType">
+        <xsd:sequence>
+            <xsd:element name="Algorithm" type="x:AlgorithmType" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="KeyGeneratorType">
+        <xsd:sequence>
+            <xsd:element name="Algorithm" type="x:AlgorithmType" minOccurs="1" maxOccurs="1" />
+            <xsd:element name="KeyLength" type="xsd:int"         minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="AlgorithmType">
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string" />
+        </xsd:simpleContent>
+    </xsd:complexType>
+    
+    <xsd:complexType name="SigningType">
+        <xsd:sequence>
+            <xsd:element name="SignatureFactory" type="xsd:token" default="DOM" />
+            <xsd:element name="Transform" type="xsd:anyURI" default="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+            <xsd:element name="DigestMethod" type="xsd:anyURI" default="http://www.w3.org/2001/04/xmlenc#sha256"/>
+            <xsd:element name="CanonicalizationMethod" type="xsd:anyURI" default="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" />
+            <xsd:element name="SignatureMethod" type="xsd:anyURI" default="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+        </xsd:sequence>
+    </xsd:complexType>
     
     <xsd:complexType name="EnvironmentSpecificAlgorithmType">
         <xsd:simpleContent>
@@ -129,5 +140,5 @@
             <xsd:enumeration value="WINDOWS" />
         </xsd:restriction>
     </xsd:simpleType>
-	
+    
 </xsd:schema>

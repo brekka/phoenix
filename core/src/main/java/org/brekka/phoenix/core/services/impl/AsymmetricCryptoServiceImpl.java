@@ -17,14 +17,35 @@
 package org.brekka.phoenix.core.services.impl;
 
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
+import java.security.KeyException;
 import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Collections;
+import java.util.List;
 
 import javax.crypto.Cipher;
+import javax.xml.crypto.MarshalException;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.Reference;
+import javax.xml.crypto.dsig.SignatureMethod;
+import javax.xml.crypto.dsig.SignedInfo;
+import javax.xml.crypto.dsig.Transform;
+import javax.xml.crypto.dsig.XMLSignature;
+import javax.xml.crypto.dsig.XMLSignatureException;
+import javax.xml.crypto.dsig.XMLSignatureFactory;
+import javax.xml.crypto.dsig.dom.DOMSignContext;
+import javax.xml.crypto.dsig.keyinfo.KeyInfo;
+import javax.xml.crypto.dsig.keyinfo.KeyInfoFactory;
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
+import javax.xml.crypto.dsig.spec.C14NMethodParameterSpec;
+import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 
 import org.brekka.phoenix.api.AsymmetricCryptoSpec;
 import org.brekka.phoenix.api.AsymmetricKey;
@@ -37,6 +58,8 @@ import org.brekka.phoenix.api.services.AsymmetricCryptoService;
 import org.brekka.phoenix.core.PhoenixErrorCode;
 import org.brekka.phoenix.core.PhoenixException;
 import org.brekka.phoenix.core.services.CryptoFactory;
+import org.brekka.phoenix.core.services.CryptoFactory.Asymmetric.Signing;
+import org.w3c.dom.Document;
 
 /**
  * TODO Description of AsymmetricCryptoServiceImpl
@@ -49,12 +72,12 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
      * @see org.brekka.phoenix.api.services.AsymmetricCryptoService#createKeyPair(org.brekka.phoenix.api.CryptoProfile)
      */
     @Override
-    public KeyPair createKeyPair(CryptoProfile cryptoProfile) {
+    public KeyPair createKeyPair(final CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         CryptoFactory.Asymmetric asymmetric = profile.getFactory().getAsymmetric();
         java.security.KeyPair keyPair = asymmetric.generateKeyPair();
         return new KeyPairImpl(
-                new PublicKeyImpl(profile, keyPair.getPublic()), 
+                new PublicKeyImpl(profile, keyPair.getPublic()),
                 new PrivateKeyImpl(profile, keyPair.getPrivate()));
     }
 
@@ -62,7 +85,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
      * @see org.brekka.phoenix.api.services.AsymmetricCryptoService#toPublicKey(byte[], org.brekka.phoenix.api.CryptoProfile)
      */
     @Override
-    public PublicKey toPublicKey(byte[] encodedPublicKeyBytes, CryptoProfile cryptoProfile) {
+    public PublicKey toPublicKey(final byte[] encodedPublicKeyBytes, final CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         CryptoFactory.Asymmetric asymmetric = profile.getFactory().getAsymmetric();
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(encodedPublicKeyBytes);
@@ -71,7 +94,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
             KeyFactory keyFactory = asymmetric.getKeyFactory();
             publicKey = keyFactory.generatePublic(publicKeySpec);
         } catch (InvalidKeySpecException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP200, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP200, e,
                     "Failed to extract public key");
         }
         return new PublicKeyImpl(profile, publicKey);
@@ -81,7 +104,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
      * @see org.brekka.phoenix.api.services.AsymmetricCryptoService#toPrivateKey(byte[], org.brekka.phoenix.api.CryptoProfile)
      */
     @Override
-    public PrivateKey toPrivateKey(byte[] encodedPrivateKeyBytes, CryptoProfile cryptoProfile) {
+    public PrivateKey toPrivateKey(final byte[] encodedPrivateKeyBytes, final CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         CryptoFactory.Asymmetric asymmetric = profile.getFactory().getAsymmetric();
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encodedPrivateKeyBytes);
@@ -90,7 +113,7 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
             KeyFactory keyFactory = asymmetric.getKeyFactory();
             privateKey =  keyFactory.generatePrivate(privateKeySpec);
         } catch (InvalidKeySpecException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP207, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP207, e,
                     "Failed to extract private key");
         }
         return new PrivateKeyImpl(profile, privateKey);
@@ -101,8 +124,8 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public <K extends AsymmetricKey> CryptoResult<K> encrypt(byte[] data,
-            K asymmetricKey) {
+    public <K extends AsymmetricKey> CryptoResult<K> encrypt(final byte[] data,
+            final K asymmetricKey) {
         AbstractAsymmetricKey<Key> keyImpl = narrowKey(asymmetricKey);
         Cipher cipher = getAsymmetricCipher(Cipher.ENCRYPT_MODE, keyImpl);
         byte[] cipherText;
@@ -114,12 +137,12 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
         }
         return new CryptoResultImpl(keyImpl, cipherText);
     }
-    
+
     /* (non-Javadoc)
      * @see org.brekka.phoenix.api.services.AsymmetricCryptoService#decrypt(byte[], org.brekka.phoenix.api.AsymmetricCryptoSpec)
      */
     @Override
-    public <K extends AsymmetricKey> byte[] decrypt(byte[] cipherText, K asymmetricKey) {
+    public <K extends AsymmetricKey> byte[] decrypt(final byte[] cipherText, final K asymmetricKey) {
         AbstractAsymmetricKey<Key> keyImpl = narrowKey(asymmetricKey);
         Cipher cipher = getAsymmetricCipher(Cipher.DECRYPT_MODE, keyImpl);
         byte[] data;
@@ -131,9 +154,45 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
         }
         return data;
     }
-    
+
+    /* (non-Javadoc)
+     * @see org.brekka.phoenix.api.services.AsymmetricCryptoService#sign(org.w3c.dom.Document, org.brekka.phoenix.api.PrivateKey)
+     */
+    @Override
+    public Document sign(final Document document, final KeyPair keyPair) {
+        PrivateKey privateKey = keyPair.getPrivateKey();
+        AbstractAsymmetricKey<Key> narrowKey = narrowKey(privateKey);
+        CryptoProfileImpl profile = narrowProfile(privateKey.getCryptoProfile());
+        Signing signing = profile.getFactory().getAsymmetric().getSigning();
+
+        DOMSignContext dsc = new DOMSignContext(narrowKey.getRealKey(), document.getDocumentElement());
+        XMLSignatureFactory fac = signing.getSignatureFactory();
+        try {
+            DigestMethod digestMethod = fac.newDigestMethod(signing.getDigestMethodAlgorithm(), null);
+            List<Transform> transforms = Collections.singletonList(fac.newTransform(signing.getTransformAlgorithm(), (TransformParameterSpec) null));
+            Reference ref = fac.newReference("", digestMethod, transforms, null, null);
+            CanonicalizationMethod canonicalizationMethod = fac.newCanonicalizationMethod(signing.getCanonicalizationMethodAlgorithm(), (C14NMethodParameterSpec) null);
+            SignatureMethod signatureMethod = fac.newSignatureMethod(signing.getSignatureMethodAlgorithm(), null);
+            SignedInfo si = fac.newSignedInfo(canonicalizationMethod, signatureMethod, Collections.singletonList(ref));
+
+            KeyInfoFactory kif = fac.getKeyInfoFactory();
+
+            AbstractAsymmetricKey<Key> narrowPublicKey = narrowKey(keyPair.getPublicKey());
+            KeyValue kv = kif.newKeyValue((java.security.PublicKey) narrowPublicKey.getRealKey());
+            KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
+
+            XMLSignature signature = fac.newXMLSignature(si, ki);
+            signature.sign(dsc);
+        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException |
+                KeyException | MarshalException | XMLSignatureException e) {
+            throw new PhoenixException(PhoenixErrorCode.CP214,
+                    "Failed to sign document with key pair %s", keyPair);
+        }
+        return document;
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>> narrowSpec(AsymmetricCryptoSpec<?> spec) {
+    protected AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>> narrowSpec(final AsymmetricCryptoSpec<?> spec) {
         CryptoProfileImpl profile = narrowProfile(spec.getCryptoProfile());
         if (spec instanceof AsymmetricCryptoSpecImpl) {
             return (AsymmetricCryptoSpecImpl<AbstractAsymmetricKey<Key>>) spec;
@@ -141,9 +200,9 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
         AbstractAsymmetricKey<?> asymKey = narrowKey(spec.getKey());
         return new AsymmetricCryptoSpecImpl(profile, asymKey);
     }
-    
+
     @SuppressWarnings("unchecked")
-    protected AbstractAsymmetricKey<Key> narrowKey(AsymmetricKey key) {
+    protected AbstractAsymmetricKey<Key> narrowKey(final AsymmetricKey key) {
         CryptoProfileImpl profile = narrowProfile(key.getCryptoProfile());
         AbstractAsymmetricKey<?> asymKey;
         if (key instanceof PublicKey) {
@@ -153,20 +212,20 @@ public class AsymmetricCryptoServiceImpl extends CryptoServiceSupport implements
             PrivateKey privateKey = (PrivateKey) key;
             asymKey = (PrivateKeyImpl) toPrivateKey(privateKey.getEncoded(), profile);
         } else {
-            throw new PhoenixException(PhoenixErrorCode.CP203, 
+            throw new PhoenixException(PhoenixErrorCode.CP203,
                     "Not an asymmetric key type '%s'", key.getClass().getName());
         }
         return (AbstractAsymmetricKey<Key>) asymKey;
     }
-    
-    protected Cipher getAsymmetricCipher(int mode, AbstractAsymmetricKey<Key> key) {
+
+    protected Cipher getAsymmetricCipher(final int mode, final AbstractAsymmetricKey<Key> key) {
         CryptoFactory.Asymmetric asymmetric = key.getCryptoProfileImpl().getFactory().getAsymmetric();
         Cipher cipher = asymmetric.getInstance();
         try {
             Key realKey = key.getRealKey();
             cipher.init(mode, realKey);
         } catch (InvalidKeyException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP206, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP206, e,
                     "Problem initializing asymmetric cipher");
         }
         return cipher;

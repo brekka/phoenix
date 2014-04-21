@@ -20,7 +20,7 @@ import org.brekka.commons.lang.ErrorCode;
 
 /**
  * Error types relating to the crypto subsystem.
- * 
+ *
  * @author Andrew Taylor
  */
 public enum PhoenixErrorCode implements ErrorCode {
@@ -33,8 +33,8 @@ public enum PhoenixErrorCode implements ErrorCode {
     CP105,
     CP106,
     CP107,
-    
-    
+
+
     CP200,
     CP201,
     CP202,
@@ -49,19 +49,20 @@ public enum PhoenixErrorCode implements ErrorCode {
     CP211,
     CP212,
     CP213,
-    
+    CP214,
+
     CP300,
     CP301,
-    
+
     CP400,
-    
+
     CP451,
-    
+
     CP700,
-    
+
     CP800,
     ;
-    
+
     private static final Area AREA = ErrorCode.Utils.createArea("CP");
     private int number = 0;
 
