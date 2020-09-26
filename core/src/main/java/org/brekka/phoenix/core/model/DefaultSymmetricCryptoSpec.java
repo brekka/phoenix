@@ -20,48 +20,38 @@ import org.brekka.phoenix.api.CryptoProfile;
 import org.brekka.phoenix.api.SecretKey;
 import org.brekka.phoenix.api.SymmetricCryptoSpec;
 
-/**
- * TODO Description of DefaultSymmetricCryptoSpec
- *
- * @author Andrew Taylor (andrew@brekka.org)
- */
 public class DefaultSymmetricCryptoSpec implements SymmetricCryptoSpec {
 
     private final SecretKey secretKey;
-    
+
     private final byte[] iv;
-    
-    /**
-     * @param secretKey
-     * @param iv
-     */
-    public DefaultSymmetricCryptoSpec(SecretKey secretKey, byte[] iv) {
+
+    public DefaultSymmetricCryptoSpec(final SecretKey secretKey, final byte[] iv) {
         this.secretKey = secretKey;
         this.iv = iv;
     }
 
-    /* (non-Javadoc)
-     * @see org.brekka.phoenix.api.CryptoSpec#getCryptoProfile()
-     */
     @Override
     public CryptoProfile getCryptoProfile() {
         return secretKey.getCryptoProfile();
     }
 
-    /* (non-Javadoc)
-     * @see org.brekka.phoenix.api.SymmetricCryptoSpec#getSecretKey()
-     */
     @Override
     public SecretKey getSecretKey() {
         return secretKey;
     }
 
-    /* (non-Javadoc)
-     * @see org.brekka.phoenix.api.SymmetricCryptoSpec#getIV()
+    /**
+     * @deprecated to fix inconsistent bean naming. Use {@link #getIv()} instead
      */
     @Override
+    @Deprecated
     public byte[] getIV() {
-        return iv;
+        return getIv();
     }
 
+    @Override
+    public byte[] getIv() {
+        return iv;
+    }
 }

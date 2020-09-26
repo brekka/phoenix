@@ -18,22 +18,28 @@ package org.brekka.phoenix.api;
 
 /**
  * Specification for a symmetric crypto operation containing the secret key and the Initialisation Vector (IV).
- * 
+ *
  * @author Andrew Taylor (andrew@brekka.org)
  */
 public interface SymmetricCryptoSpec extends CryptoSpec {
 
     /**
      * The encryption key
-     * 
+     *
      * @return
      */
     SecretKey getSecretKey();
 
     /**
      * The Initialisation Vector
-     * 
+     *
      * @return
+     * @deprecated use {@link #getIv()}.
      */
+    @Deprecated
     byte[] getIV();
+
+    default byte[] getIv() {
+        return getIV();
+    }
 }

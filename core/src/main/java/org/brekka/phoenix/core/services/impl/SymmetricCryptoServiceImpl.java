@@ -36,7 +36,6 @@ import org.brekka.phoenix.api.DigestResult;
 import org.brekka.phoenix.api.SecretKey;
 import org.brekka.phoenix.api.StreamCryptor;
 import org.brekka.phoenix.api.SymmetricCryptoSpec;
-import org.brekka.phoenix.api.services.CryptoProfileService;
 import org.brekka.phoenix.api.services.DigestCryptoService;
 import org.brekka.phoenix.api.services.SymmetricCryptoService;
 import org.brekka.phoenix.core.PhoenixErrorCode;
@@ -51,12 +50,12 @@ import org.brekka.phoenix.core.services.CryptoFactory;
 public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements SymmetricCryptoService {
 
     private DigestCryptoService digestCryptoService;
-    
+
     /* (non-Javadoc)
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#createSecretKey(org.brekka.phoenix.api.CryptoProfile)
      */
     @Override
-    public SecretKey createSecretKey(CryptoProfile cryptoProfile) {
+    public SecretKey createSecretKey(final CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         CryptoFactory.Symmetric symmetric = profile.getFactory().getSymmetric();
         KeyGenerator keyGenerator = symmetric.getKeyGenerator();
@@ -68,18 +67,18 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#toSecretKey(byte[], org.brekka.phoenix.api.CryptoProfile)
      */
     @Override
-    public SecretKey toSecretKey(byte[] encodedKeyBytes, CryptoProfile cryptoProfile) {
+    public SecretKey toSecretKey(final byte[] encodedKeyBytes, final CryptoProfile cryptoProfile) {
         CryptoProfileImpl profile = narrowProfile(cryptoProfile);
         CryptoFactory.Symmetric symmetric = profile.getFactory().getSymmetric();
         javax.crypto.SecretKey secretKey = new SecretKeySpec(encodedKeyBytes, symmetric.getKeyGenerator().getAlgorithm());
         return new SecretKeyImpl(profile, secretKey);
     }
-    
+
     /* (non-Javadoc)
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#toSymmetricCryptoSpec(org.brekka.phoenix.api.DerivedKey)
      */
     @Override
-    public SymmetricCryptoSpec toSymmetricCryptoSpec(DerivedKey derivedKey) {
+    public SymmetricCryptoSpec toSymmetricCryptoSpec(final DerivedKey derivedKey) {
         CryptoProfileImpl profile = narrowProfile(derivedKey.getCryptoProfile());
         byte[] salt = derivedKey.getSalt();
         byte[] dKey = derivedKey.getDerivedKey();
@@ -92,25 +91,25 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#encrypt(byte[], org.brekka.phoenix.api.SymmetricCryptoSpec)
      */
     @Override
-    public CryptoResult<SymmetricCryptoSpec> encrypt(byte[] data, SymmetricCryptoSpec symmetricSpec) {
+    public CryptoResult<SymmetricCryptoSpec> encrypt(final byte[] data, final SymmetricCryptoSpec symmetricSpec) {
         SymmetricCryptoSpecImpl spec = narrowSpec(symmetricSpec);
         Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, spec);
-        
+
         byte[] cipherData;
         try {
             cipherData = cipher.doFinal(data);
         } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP105, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP105, e,
                     "Failed to symmetric encrypt object");
         }
-        return new CryptoResultImpl<SymmetricCryptoSpec>(spec, cipherData);
+        return new CryptoResultImpl<>(spec, cipherData);
     }
 
     /* (non-Javadoc)
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#encrypt(byte[], org.brekka.phoenix.api.SecretKey)
      */
     @Override
-    public CryptoResult<SymmetricCryptoSpec> encrypt(byte[] data, SecretKey secretKey) {
+    public CryptoResult<SymmetricCryptoSpec> encrypt(final byte[] data, final SecretKey secretKey) {
         SymmetricCryptoSpecImpl spec = prepareSpec(secretKey);
         return encrypt(data, spec);
     }
@@ -119,14 +118,14 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#decrypt(byte[], org.brekka.phoenix.api.SymmetricCryptoSpec)
      */
     @Override
-    public byte[] decrypt(byte[] cipherText, SymmetricCryptoSpec symmetricSpec) {
+    public byte[] decrypt(final byte[] cipherText, final SymmetricCryptoSpec symmetricSpec) {
         SymmetricCryptoSpecImpl spec = narrowSpec(symmetricSpec);
         Cipher cipher = getCipher(Cipher.DECRYPT_MODE, spec);
         byte[] data;
         try {
             data = cipher.doFinal(cipherText);
         } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP106, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP106, e,
                     "Failed to decrypt %d bytes of data", cipherText.length);
         }
         return data;
@@ -137,7 +136,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#encryptor(org.brekka.phoenix.api.SecretKey)
      */
     @Override
-    public StreamCryptor<OutputStream, SymmetricCryptoSpec> encryptor(SecretKey secretKey) {
+    public StreamCryptor<OutputStream, SymmetricCryptoSpec> encryptor(final SecretKey secretKey) {
         SymmetricCryptoSpecImpl spec = prepareSpec(secretKey);
         final Cipher cipher = getCipher(Cipher.ENCRYPT_MODE, spec);
         return new AbstractStreamCryptor<OutputStream, SymmetricCryptoSpec>(spec) {
@@ -145,7 +144,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
              * @see org.brekka.phoenix.api.StreamCryptor#getStream(java.lang.Object)
              */
             @Override
-            public OutputStream getStream(OutputStream stream) {
+            public OutputStream getStream(final OutputStream stream) {
                 return new CipherOutputStream(stream, cipher);
             }
         };
@@ -155,7 +154,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @see org.brekka.phoenix.api.services.SymmetricCryptoService#decryptor(org.brekka.phoenix.api.SymmetricCryptoSpec)
      */
     @Override
-    public StreamCryptor<InputStream, SymmetricCryptoSpec> decryptor(SymmetricCryptoSpec symmetricSpec) {
+    public StreamCryptor<InputStream, SymmetricCryptoSpec> decryptor(final SymmetricCryptoSpec symmetricSpec) {
         SymmetricCryptoSpecImpl spec = narrowSpec(symmetricSpec);
         final Cipher cipher = getCipher(Cipher.DECRYPT_MODE, spec);
         return new AbstractStreamCryptor<InputStream, SymmetricCryptoSpec>(spec) {
@@ -163,31 +162,31 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
              * @see org.brekka.phoenix.api.StreamCryptor#getStream(java.lang.Object)
              */
             @Override
-            public InputStream getStream(InputStream stream) {
+            public InputStream getStream(final InputStream stream) {
                 return new CipherInputStream(stream, cipher);
             }
         };
     }
-    
+
     /**
      * @param salt
      * @param profile
      * @return
      */
-    protected byte[] saltToIv(byte[] salt, CryptoProfileImpl profile) {
+    protected byte[] saltToIv(final byte[] salt, final CryptoProfileImpl profile) {
         DigestResult digestResult = digestCryptoService.digest(salt, profile);
         byte[] digest = digestResult.getDigest();
         int requiredIvLength = profile.getFactory().getSymmetric().getIvLength();
         // Reduce the digest down to the IV length
         if (requiredIvLength > digest.length) {
-            throw new PhoenixException(PhoenixErrorCode.CP104, 
-                    "Digest algrithm did not produce enough bytes (%d) to satisfy IV length (%d)", 
+            throw new PhoenixException(PhoenixErrorCode.CP104,
+                    "Digest algrithm did not produce enough bytes (%d) to satisfy IV length (%d)",
                     digest.length, requiredIvLength);
         }
         return Arrays.copyOfRange(digest, 0, requiredIvLength);
     }
-    
-    protected IvParameterSpec generateInitializationVector(CryptoProfileImpl profile) {
+
+    protected IvParameterSpec generateInitializationVector(final CryptoProfileImpl profile) {
         CryptoFactory factory = profile.getFactory();
         byte[] ivBytes = new byte[factory.getSymmetric().getIvLength()];
         factory.getSecureRandom().nextBytes(ivBytes);
@@ -200,15 +199,15 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @param secretKey
      * @return
      */
-    protected SymmetricCryptoSpecImpl prepareSpec(SecretKey secretKey) {
+    protected SymmetricCryptoSpecImpl prepareSpec(final SecretKey secretKey) {
         SecretKeyImpl secretKeyImpl = narrowSecretKey(secretKey);
         CryptoProfileImpl profile = narrowProfile(secretKeyImpl.getCryptoProfile());
         IvParameterSpec initializationVector = generateInitializationVector(profile);
         SymmetricCryptoSpecImpl spec = new SymmetricCryptoSpecImpl(profile, secretKeyImpl, initializationVector);
         return spec;
     }
-    
-    protected Cipher getCipher(int mode, SymmetricCryptoSpecImpl spec) {
+
+    protected Cipher getCipher(final int mode, final SymmetricCryptoSpecImpl spec) {
         java.security.Key key = spec.getSecretKeyImpl().getRealKey();
         AlgorithmParameterSpec parameter = spec.getIvParameterSpec();
         CryptoFactory.Symmetric symmetricProfile = spec.getCryptoProfileImpl().getFactory().getSymmetric();
@@ -216,7 +215,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
         try {
             cipher.init(mode, key, parameter);
         } catch (GeneralSecurityException e) {
-            throw new PhoenixException(PhoenixErrorCode.CP102, e, 
+            throw new PhoenixException(PhoenixErrorCode.CP102, e,
                     "Problem initializing symmetric cipher");
         }
         return cipher;
@@ -227,7 +226,7 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @param class1
      * @return
      */
-    protected SecretKeyImpl narrowSecretKey(SecretKey key) {
+    protected SecretKeyImpl narrowSecretKey(final SecretKey key) {
         if (key instanceof SecretKeyImpl) {
             return (SecretKeyImpl) key;
         }
@@ -239,20 +238,20 @@ public class SymmetricCryptoServiceImpl extends CryptoServiceSupport implements 
      * @param symmetricSpec
      * @return
      */
-    protected SymmetricCryptoSpecImpl narrowSpec(SymmetricCryptoSpec symmetricSpec) {
+    protected SymmetricCryptoSpecImpl narrowSpec(final SymmetricCryptoSpec symmetricSpec) {
         if (symmetricSpec instanceof SymmetricCryptoSpecImpl) {
             return (SymmetricCryptoSpecImpl) symmetricSpec;
         }
-        IvParameterSpec initializationVector = new IvParameterSpec(symmetricSpec.getIV());
+        IvParameterSpec initializationVector = new IvParameterSpec(symmetricSpec.getIv());
         SecretKeyImpl secretKeyImpl = narrowSecretKey(symmetricSpec.getSecretKey());
         CryptoProfileImpl profile = narrowProfile(symmetricSpec.getCryptoProfile());
         return new SymmetricCryptoSpecImpl(profile, secretKeyImpl, initializationVector);
     }
-    
+
     /**
      * @param digestCryptoService the digestCryptoService to set
      */
-    public void setDigestCryptoService(DigestCryptoService digestCryptoService) {
+    public void setDigestCryptoService(final DigestCryptoService digestCryptoService) {
         this.digestCryptoService = digestCryptoService;
     }
 }
